@@ -1,9 +1,12 @@
 package copy
 
 import (
+	//copier "github.com/tvducmt/protoc-gen-copy/protobuf"
+	copier "github.com/tvducmt/protoc-gen-copy/protobuf"
 
-	// querier "git.zapa.cloud/merchant-tools/helper/protoc-gen-buildquery/protobuf"
-
+	"github.com/gogo/protobuf/gogoproto"
+	"github.com/gogo/protobuf/proto"
+	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	"github.com/gogo/protobuf/protoc-gen-gogo/generator"
 )
 
@@ -36,7 +39,6 @@ func (c *copy) Init(g *generator.Generator) {
 }
 
 func (c *copy) Generate(file *generator.FileDescriptor) {
-	// proto3 := gogoproto.IsProto3(file.FileDescriptorProto)
 	c.PluginImports = generator.NewPluginImports(c.Generator)
 
 	c.glogPkg = c.NewImport("githuc.com/golang/glog")
@@ -48,41 +50,48 @@ func (c *copy) Generate(file *generator.FileDescriptor) {
 	c.flagPkg = c.NewImport("flag")
 
 	for _, msg := range file.Messages() {
-		// if msg.DescriptorProto.GetOptions().GetMapEntry() {
-		// 	continue
-		// }
-		// c.generateRegexVars(file, msg)
-		// if gogoproto.IsProto3(file.FileDescriptorProto) {
-		c.generateProto3Message(file, msg)
-		// }
+		if msg.DescriptorProto.GetOptions().GetMapEntry() {
+			continue
+		}
+		if gogoproto.IsProto3(file.FileDescriptorProto) {
+			c.generateProto3Message(file, msg)
+		}
 	}
 }
 
 func (c *copy) generateProto3Message(file *generator.FileDescriptor, message *generator.Descriptor) {
+
 	ccTypeName := generator.CamelCaseSlice(message.TypeName())
-	c.P(`func (this *`, ccTypeName, `) Copy(resp interface{}) {`)
+	c.P(`func (this *`, ccTypeName, `) Copy(`, copier.CopyProto{}.A, `) {`)
 	c.In()
 	c.P(c.flagPkg.Use(), `.Parse()`)
+	// c.P(`esMap := map[string]interface{}{}`)
 
-	c.P(`reqVal := reflect.Indirect(reflect.ValueOf(l))`)
-	c.P(`reqType := indirectType(reqVal.Type())`)
-	c.P(`reqCoreServiceVal := reflect.Indirect(reflect.ValueOf(resp))`)
-	c.P(`for i := 0; i < reqType.NumField(); i++ {`)
-	c.P(`v := reqType.Field(i)`)
-	c.P(`fmt.Println(":reqCoreServiceVal.Type()", reqCoreServiceVal.Type().Name())`)
-	c.P(`if !strings.HasPrefix(v.Name, "XXX_") {`)
-	c.P(`if f, ok := reqCoreServiceVal.Type().FieldByName(v.Name); ok {`)
-	// reqCoreService.ZpTransID = l.GetZpTransID()
-	c.P(`ListCITransactionsSvcRequest.ZpTransID =`)
-	c.P(`fmt.Println("into here  v.Index", v.Name)`)
-	c.P(`fmt.Println("into here  f.Index", f.Name)`)
-	// fmt.Println("into here  v.Index", v.Index)
-	// fields = append(fields, &searchField{indexFrom: v.Index, indexTo: f.Index})
-	c.P(`}`)
+	for _, field := range message.Field {
+		fieldCopy := c.getFieldQueryIfAny(field)
+		if fieldCopy == nil {
+			continue
+		}
+		fieldName := c.GetOneOfFieldName(message, field)
+		variableName := "this." + fieldName
+		c.P(` x:= `, variableName)
 
-	c.P(`}`)
-	c.P(`}`)
+		// if field.IsMessage() {
+		// 	c.generatePtrAndStructEs(variableName, ccTypeName, fieldName, fieldEs)
+		// } else {
+		// 	c.generateFieldEs(variableName, ccTypeName, fieldEs)
+		// }
 
-	c.Out()
-	c.P(`}`)
+	}
+	// c.P(`}`)
+}
+
+func (c *copy) getFieldQueryIfAny(field *descriptor.FieldDescriptorProto) *copier.CopyProto {
+	if field.Options != nil {
+		v, err := proto.GetExtension(field.Options, copier.E_Field)
+		if err == nil && v.(*copier.CopyProto) != nil {
+			return (v.(*copier.CopyProto))
+		}
+	}
+	return nil
 }

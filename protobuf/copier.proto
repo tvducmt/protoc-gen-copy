@@ -1,0 +1,24 @@
+syntax = "proto3";
+package copier_proto;
+
+import "google/protobuf/descriptor.proto";
+// import  "github.com/tvducmt/protoc-gen-copy/test/copiertest.proto";
+import  "github.com/tvducmt/protoc-gen-copy/test/copiertest.proto";
+
+option go_package = "copier.proto";
+
+extend google.protobuf.FieldOptions {
+    CopyProto field               = 66663;
+}
+
+message CopyProto{
+    ListCITransactionsRequest a = 1;        //[rule ....]
+}
+
+
+message ListCITransactionsRequest {
+    string m_trans_id                   = 1;
+    string zp_trans_id                  = 2 ;
+    string merchant_id                  = 3 ;
+    string m_id                         = 4 ;
+}

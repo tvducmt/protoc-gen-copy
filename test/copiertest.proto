@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package test;
+
+// import "git.zapa.cloud/merchant-tools/helper/proto/type.proto";
+import  "github.com/tvducmt/protoc-gen-copy/protobuf/copier.proto";
+// import "google/protobuf/timestamp.proto";
+
+message ListCITransactionsRequest{
+    string m_trans_id                   = 1 ;
+    string zp_trans_id                  = 2 ;
+    string merchant_id                  = 3 ;
+    string m_id                         = 4 ;
+
+}
+
+
+// message TransactionsRequest{
+//     string m_trans_id                   = 1 [(copier_proto.field) = {a:ListCITransactionsRequest}];
+//     string zp_trans_id                  = 2 ;
+//     string merchant_id                  = 3 ;
+//     string m_id                         = 4 ;
+
+// }
