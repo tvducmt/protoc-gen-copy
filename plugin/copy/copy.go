@@ -1,7 +1,11 @@
 package copy
 
 import (
+	"strings"
+
+	"github.com/golang/glog"
 	//copier "github.com/tvducmt/protoc-gen-copy/protobuf"
+
 	copier "github.com/tvducmt/protoc-gen-copy/protobuf"
 
 	"github.com/gogo/protobuf/gogoproto"
@@ -21,6 +25,7 @@ type copy struct {
 	timePkg    generator.Single
 	flagPkg    generator.Single
 	stringsPkg generator.Single
+	// testPkg    generator.Single
 }
 
 // NewCopy ...
@@ -58,35 +63,63 @@ func (c *copy) Generate(file *generator.FileDescriptor) {
 		}
 	}
 }
+func trimFirstRune(s string) string {
+	for i := range s {
+		if i > 0 {
+			return s[i:]
+		}
+	}
+	return ""
+}
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+type Object struct {
+	Fields []string
+	Name   string
+}
 
 func (c *copy) generateProto3Message(file *generator.FileDescriptor, message *generator.Descriptor) {
 
 	ccTypeName := generator.CamelCaseSlice(message.TypeName())
-	c.P(`func (this *`, ccTypeName, `) Copy(`, copier.CopyProto{}.A, `) {`)
-	c.In()
-	c.P(c.flagPkg.Use(), `.Parse()`)
-	// c.P(`esMap := map[string]interface{}{}`)
+	fieldsA := []Object{}
 
+	// listFieldTo :=
 	for _, field := range message.Field {
-		fieldCopy := c.getFieldQueryIfAny(field)
-		if fieldCopy == nil {
-			continue
+		if !field.IsMessage() {
+			return
 		}
-		fieldName := c.GetOneOfFieldName(message, field)
-		variableName := "this." + fieldName
-		c.P(` x:= `, variableName)
-
-		// if field.IsMessage() {
-		// 	c.generatePtrAndStructEs(variableName, ccTypeName, fieldName, fieldEs)
-		// } else {
-		// 	c.generateFieldEs(variableName, ccTypeName, fieldEs)
-		// }
-
+		fieldCopy := c.getFieldCpIfAny(field)
+		if fieldCopy != nil {
+			if fieldCopy.GetEnableCpProto() != "" {
+				obj := Object{
+					Fields: strings.Split(fieldCopy.GetEnableCpProto(), ";"),
+					Name:   field.GetTypeName(),
+				}
+				fieldsA = append(fieldsA, obj)
+			}
+		}
 	}
-	// c.P(`}`)
+	if len(fieldsA) < 2 {
+		glog.Errorln("len < 2")
+	}
+	c.P(`func (this *`, ccTypeName, `) Copy(to *`, trimFirstRune(fieldsA[1].Name), `, from *`, trimFirstRune(fieldsA[0].Name), ` ) {`) //, copier.CopyProto{}.A,from *`, trimFirstRune(field.GetTypeName()), `
+	c.P(c.flagPkg.Use(), `.Parse()`)
+	for _, v := range fieldsA[0].Fields {
+		if contains(fieldsA[1].Fields, v) {
+			c.P(`to.`, v, ` = from.`, v)
+		}
+	}
+	c.P(`}`)
 }
 
-func (c *copy) getFieldQueryIfAny(field *descriptor.FieldDescriptorProto) *copier.CopyProto {
+func (c *copy) getFieldCpIfAny(field *descriptor.FieldDescriptorProto) *copier.CopyProto {
 	if field.Options != nil {
 		v, err := proto.GetExtension(field.Options, copier.E_Field)
 		if err == nil && v.(*copier.CopyProto) != nil {

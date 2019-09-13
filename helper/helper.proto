@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package helper;
+import  "github.com/tvducmt/protoc-gen-copy/protobuf/copier.proto";
+// message ListCITransactionsRequestA{
+//     string m_trans_id                   = 1 ;
+//     string zp_trans_id                  = 2 ;
+//     string merchant_id                  = 3 ;
+//     string m_id                         = 4 ;
+// }
+
+// message ListCITransactionsRequestB{
+//     string m_trans_id                   = 1 ;
+//     string zp_trans_id                  = 2 ;
+//     string merchant_id                  = 3 ;
+// }
+
+message ListCITransactionsRequestB{
+    string m_trans_id                   = 1;
+    string zp_trans_id                  = 2;
+    string m_id                         = 3 ;
+}
+
+
+message ListCITransactionsRequestA{
+    string m_trans_id                   = 1 ;
+    string zp_trans_id                  = 2 ;
+    string merchant_id                  = 3 ;
+    string m_id                         = 4 ;
+}
