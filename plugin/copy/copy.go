@@ -1,10 +1,10 @@
 package copy
 
 import (
-	"strings"
 
-	"github.com/golang/glog"
 	//copier "github.com/tvducmt/protoc-gen-copy/protobuf"
+
+	"strings"
 
 	copier "github.com/tvducmt/protoc-gen-copy/protobuf"
 
@@ -12,6 +12,10 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	"github.com/gogo/protobuf/protoc-gen-gogo/generator"
+)
+
+const (
+	protobufPkg = "github.com/tvducmt/protoc-gen-copy/protobuf"
 )
 
 type copy struct {
@@ -54,6 +58,11 @@ func (c *copy) Generate(file *generator.FileDescriptor) {
 	c.timePkg = c.NewImport("time")
 	c.flagPkg = c.NewImport("flag")
 
+	protobufPkg = string(c.gen.AddImport(protobufPkgPath))
+
+	g.P("// Reference imports to suppress errors if they are not otherwise used.")
+	g.P("var _ ", protobufPkg, ".ClientConn")
+	g.P()
 	for _, msg := range file.Messages() {
 		if msg.DescriptorProto.GetOptions().GetMapEntry() {
 			continue
@@ -71,6 +80,7 @@ func trimFirstRune(s string) string {
 	}
 	return ""
 }
+
 func contains(s []string, e string) bool {
 	for _, a := range s {
 		if a == e {
@@ -80,39 +90,62 @@ func contains(s []string, e string) bool {
 	return false
 }
 
-type Object struct {
-	Fields []string
-	Name   string
-}
-
 func (c *copy) generateProto3Message(file *generator.FileDescriptor, message *generator.Descriptor) {
 
 	ccTypeName := generator.CamelCaseSlice(message.TypeName())
-	fieldsA := []Object{}
 
-	// listFieldTo :=
+	mapMsg := make(map[string][]string)
+	args := []string{}
 	for _, field := range message.Field {
 		if !field.IsMessage() {
 			return
 		}
-		fieldCopy := c.getFieldCpIfAny(field)
-		if fieldCopy != nil {
-			if fieldCopy.GetEnableCpProto() != "" {
-				obj := Object{
-					Fields: strings.Split(fieldCopy.GetEnableCpProto(), ";"),
-					Name:   field.GetTypeName(),
+		fieldTypeName := field.GetTypeName()
+		if strings.HasPrefix(fieldTypeName, ".") {
+			// arr := strings.Split(fieldTypeName, ".")
+			// glog.Infoln("arr[len(arr)-1]", arr[len(arr)-1])
+			fieldCopy := c.getFieldCpIfAny(field)
+			if fieldCopy != nil {
+				if fieldCopy.GetEnableCpProto() != "" {
+					// toArg = fieldCopy.GetEnableCpProto()
+					msg := c.ObjectNamed(field.GetTypeName()).(*generator.Descriptor).DescriptorProto
+					for _, v := range msg.Field {
+						if _, ok := mapMsg[fieldTypeName]; ok {
+							mapMsg[fieldTypeName] = append(mapMsg[fieldTypeName], strings.Title(v.GetJsonName()))
+						} else {
+							arr := []string{strings.Title(v.GetJsonName())}
+							mapMsg[fieldTypeName] = arr
+							args = append(args, fieldTypeName)
+						}
+					}
 				}
-				fieldsA = append(fieldsA, obj)
 			}
+		} else {
 		}
 	}
-	if len(fieldsA) < 2 {
-		glog.Errorln("len < 2")
+
+	toArg := []string{}
+	fromArg := []string{}
+
+	intoCheck := true
+	if len(mapMsg) == 2 {
+		for _, v := range mapMsg {
+			if intoCheck {
+				fromArg = v
+				intoCheck = false
+
+			} else {
+				toArg = v
+				// keys = append(keys, k)
+			}
+		}
+
 	}
-	c.P(`func (this *`, ccTypeName, `) Copy(to *`, trimFirstRune(fieldsA[1].Name), `, from *`, trimFirstRune(fieldsA[0].Name), ` ) {`) //, copier.CopyProto{}.A,from *`, trimFirstRune(field.GetTypeName()), `
+
+	c.P(`func (this *`, ccTypeName, `) Copy(to *`, trimFirstRune(args[1]), `, from *`, trimFirstRune(args[0]), ` ) {`) //, copier.CopyProto{}.A,from *`, trimFirstRune(field.GetTypeName()), `
 	c.P(c.flagPkg.Use(), `.Parse()`)
-	for _, v := range fieldsA[0].Fields {
-		if contains(fieldsA[1].Fields, v) {
+	for _, v := range fromArg {
+		if contains(toArg, v) {
 			c.P(`to.`, v, ` = from.`, v)
 		}
 	}

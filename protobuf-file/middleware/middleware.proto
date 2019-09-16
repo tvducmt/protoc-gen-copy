@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package middleware;
+
+message ListCITransactionsRequest{
+    string m_trans_id                   = 1 ;
+    string zp_trans_id                  = 2 ;
+    string merchant_id                  = 3 ;
+    string m_id                         = 4 ;
+}

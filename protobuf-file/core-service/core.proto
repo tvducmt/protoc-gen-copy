@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package core;
+
+message ListCITransactionsRequest{
+    string m_trans_id                   = 1;
+    string zp_trans_id                  = 2;
+    string m_id                         = 3 ;
+}

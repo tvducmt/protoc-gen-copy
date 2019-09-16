@@ -1,0 +1,13 @@
+
+syntax = "proto3";
+package copy;
+
+// import "git.zapa.cloud/merchant-tools/helper/proto/type.proto";
+import  "github.com/tvducmt/protoc-gen-copy/protobuf/copier.proto"; // helper/helper.proto";
+import "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service/core.proto";
+import "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware/middleware.proto";
+
+message CopyProtoAB {
+    middleware.ListCITransactionsRequest req_a                           = 1 [(copier_proto.field) = {enableCpProto: "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware"}];
+    core.ListCITransactionsRequest       req_b                           = 2 [(copier_proto.field) = {enableCpProto: "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"}]; 
+}
