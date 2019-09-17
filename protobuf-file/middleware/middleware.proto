@@ -1,10 +1,18 @@
 syntax = "proto3";
 
 package middleware;
-
+message Hello {
+    string k_a =1;
+}
+message Transaction {
+    string m_a                   = 1 ;
+    string zp_b                  = 2 ;
+    Hello hello =3;
+}
 message ListCITransactionsRequest{
     string m_trans_id                   = 1 ;
     string zp_trans_id                  = 2 ;
     string merchant_id                  = 3 ;
     string m_id                         = 4 ;
+    Transaction data                    = 5;
 }

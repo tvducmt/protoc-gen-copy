@@ -4,13 +4,15 @@
 package copy
 
 import (
+	context "context"
 	fmt "fmt"
 	math "math"
+
 	proto "github.com/gogo/protobuf/proto"
 	_ "github.com/tvducmt/protoc-gen-copy/protobuf"
-	_ "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
-	_ "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware"
-	flag "flag"
+	core_service "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
+	middleware "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware"
+	grpc "google.golang.org/grpc"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -18,9 +20,22 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *CopyProtoAB) Copy(to *core.ListCITransactionsRequest, from *middleware.ListCITransactionsRequest) {
-	flag.Parse()
-	to.MTransId = from.MTransId
-	to.ZpTransId = from.ZpTransId
-	to.MId = from.MId
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+
+type copy struct {
+}
+
+func NewCopy() *copy {
+	return &copy{}
+}
+
+func (c *copy) ListCITransactionsRequest(ctx context.Context, in *middleware.ListCITransactionsRequest, opts ...grpc.CallOption) (*core_service.ListCITransactionsRequest, error) {
+	out := new(core_service.ListCITransactionsRequest)
+	out.MTransId = in.MTransId
+	out.ZpTransId = in.ZpTransId
+	out.MId = in.MId
+	out.Data.MA = in.Data.MA
+	out.Data.Hello.KA = in.Data.Hello.KA
+	return out, nil
 }
