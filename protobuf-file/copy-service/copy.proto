@@ -27,6 +27,16 @@ import "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware/middleware.p
 // }
 
 service Copy {
-    rpc ListCITransactionsRequest(middleware.ListCITransactionsRequest) returns (core.ListCITransactionsRequest) {}
-
+    rpc ListCITransactionsRequest(middleware.ListCITransactionsRequest) returns (core.ListCITransactionsRequest) {
+        option (copier_proto.cp) = {
+			arr_msg_cp: "true"
+		};
+    }
+    // rpc ArrayRequest(ArrayMiddlewareRequest) returns (core.ListCITransactionsRequest) {}
 }
+// message ArrayMiddlewareRequest {
+//     repeated middleware.ListCITransactionsRequest mid_request = 1;
+// }
+// message ArrayCoreRequest {
+//     repeated core.ListCITransactionsRequest core_request = 1;
+// }

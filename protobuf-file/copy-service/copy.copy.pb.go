@@ -10,9 +10,9 @@ import (
 
 	proto "github.com/gogo/protobuf/proto"
 	_ "github.com/tvducmt/protoc-gen-copy/protobuf"
+	"github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
 	core_service "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
 	middleware "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware"
-	grpc "google.golang.org/grpc"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -30,12 +30,15 @@ func NewCopy() *copy {
 	return &copy{}
 }
 
-func (c *copy) ListCITransactionsRequest(ctx context.Context, in *middleware.ListCITransactionsRequest, opts ...grpc.CallOption) (*core_service.ListCITransactionsRequest, error) {
-	out := new(core_service.ListCITransactionsRequest)
-	out.MTransId = in.MTransId
-	out.ZpTransId = in.ZpTransId
-	out.MId = in.MId
-	out.Data.MA = in.Data.MA
-	out.Data.Hello.KA = in.Data.Hello.KA
-	return out, nil
+func (c *copy) ListCITransactionsRequest(from *middleware.ListCITransactionsRequest, to *core_service.ListCITransactionsRequest) error {
+	to.MTransId = from.MTransId
+	to.ZpTransId = from.ZpTransId
+	to.MId = from.MId
+	to.Data = &core.Transaction{
+		MA: from.Data.MA,
+		Hello: &core.Hello{
+			KA: from.Data.Hello.KA,
+		},
+	}
+	return nil
 }
