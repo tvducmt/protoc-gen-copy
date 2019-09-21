@@ -7,7 +7,7 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/protoc-gen-gogo/generator"
-	copy_plugin "github.com/tvducmt/protoc-gen-copy/plugin/copy"
+	copy_plugin "github.com/tvducmt/protoc-gen-copy/plugin"
 )
 
 func main() {

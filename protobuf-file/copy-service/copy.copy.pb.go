@@ -4,15 +4,12 @@
 package copy
 
 import (
-	context "context"
 	fmt "fmt"
 	math "math"
-
 	proto "github.com/gogo/protobuf/proto"
-	_ "github.com/tvducmt/protoc-gen-copy/protobuf"
-	"github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
 	core_service "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
 	middleware "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware"
+	context "context"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -23,6 +20,14 @@ var _ = math.Inf
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
 
+func CheckNull(field interface{}) bool {
+	zero := reflect.Zero(reflect.TypeOf(field)).Interface()
+	if reflect.DeepEqual(field, zero) {
+		return true
+	}
+	return false
+}
+
 type copy struct {
 }
 
@@ -30,15 +35,16 @@ func NewCopy() *copy {
 	return &copy{}
 }
 
-func (c *copy) ListCITransactionsRequest(from *middleware.ListCITransactionsRequest, to *core_service.ListCITransactionsRequest) error {
-	to.MTransId = from.MTransId
-	to.ZpTransId = from.ZpTransId
-	to.MId = from.MId
-	to.Data = &core.Transaction{
-		MA: from.Data.MA,
-		Hello: &core.Hello{
-			KA: from.Data.Hello.KA,
-		},
+func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation, to *core_service.BODetailReconciliation) error {
+	if !CheckNull(from.CountableAttribute) {
+		to.CountableAttribute = &core.CountableAttribute{
+			MerchantRefundAmount: func(h *middleware.CountableAttribute) int64 {
+				if h == nil {
+					return 3
+				}
+				return h.MerchantRefundAmount
+			}(from.CountableAttribute),
+		}
 	}
 	return nil
 }
