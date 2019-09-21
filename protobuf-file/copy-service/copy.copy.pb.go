@@ -4,12 +4,15 @@
 package copy
 
 import (
+	context "context"
 	fmt "fmt"
 	math "math"
+	"reflect"
+
 	proto "github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	core_service "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
 	middleware "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware"
-	context "context"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -36,14 +39,42 @@ func NewCopy() *copy {
 }
 
 func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation, to *core_service.BODetailReconciliation) error {
-	if !CheckNull(from.CountableAttribute) {
-		to.CountableAttribute = &core.CountableAttribute{
-			MerchantRefundAmount: func(h *middleware.CountableAttribute) int64 {
+	if !CheckNull(from.FromDate) {
+		to.FromDate = &proto.Date{
+			Year: func(h *proto.Date) int32 {
 				if h == nil {
-					return 3
+					return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
 				}
-				return h.MerchantRefundAmount
-			}(from.CountableAttribute),
+				return h.Year
+			}(from.FromDate),
+			Month: func(h *proto.Date) int32 {
+				if h == nil {
+					return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
+				}
+				return h.Month
+			}(from.FromDate),
+			Day: func(h *proto.Date) int32 {
+				if h == nil {
+					return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
+				}
+				return h.Day
+			}(from.FromDate),
+		}
+	}
+	if !CheckNull(from.TransTime) {
+		to.TransTime = &timestamp.Timestamp{
+			Seconds: func(h *timestamp.Timestamp) int64 {
+				if h == nil {
+					return reflect.Zero(reflect.TypeOf(reflect.Int64)).Interface().(int64)
+				}
+				return h.Seconds
+			}(from.TransTime),
+			Nanos: func(h *timestamp.Timestamp) int32 {
+				if h == nil {
+					return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
+				}
+				return h.Nanos
+			}(from.TransTime),
 		}
 	}
 	return nil

@@ -129,17 +129,37 @@ func getTypeOfFied(field *descriptor.FieldDescriptorProto) string {
 	}
 	return "PrimitiveType"
 }
+func getNestedType(input string) string {
+	// glog.Infoln("input", input)
+	if input == "google.protobuf.Timestamp" {
+		return "timestamp.Timestamp"
+	}
+	if input == "google.type.Date" {
+		return "proto.Date"
+	}
+	arr := strings.Split(input, ".")
+	if len(arr) > 2 {
+		concatSrting := arr[0] + "."
+		for i := 1; i < len(arr)-1; i++ {
+			concatSrting += arr[i] + `_`
+		}
+		concatSrting += arr[len(arr)-1]
+		return concatSrting
+	}
+	return input
+}
 func (c *copy) getFieldsOfMsg(msg *descriptor.DescriptorProto, path string) []interface{} {
 	args := []interface{}{}
 	for _, v := range msg.Field {
 		if v.IsMessage() {
-			glog.Infoln("v.GetTypeName()", msg.GetNestedType())
+			path = ""
 			mpMsg := make(map[ObjQueue][]interface{})
 			msg1 := c.ObjectNamed(v.GetTypeName()).(*generator.Descriptor).DescriptorProto
-			// parent = parent + "." + strings.Title(v.GetJsonName())
 			path = path + "." + strings.Title(v.GetJsonName())
 			x := c.getFieldsOfMsg(msg1, path)
-			mpMsg[ObjQueue{Name: strings.Title(v.GetJsonName()), Type: v.GetTypeName(), Val: path}] = x
+			typeNested := getNestedType(TrimFirstRune(v.GetTypeName()))
+			// glog.Infoln("typeNested", typeNested)
+			mpMsg[ObjQueue{Name: strings.Title(v.GetJsonName()), Type: typeNested, Val: path}] = x
 			args = append(args, mpMsg)
 		} else {
 			primitiveType := getTypeOfFied(v)
@@ -153,14 +173,14 @@ func (c *copy) generateStruct(toArg []interface{}, path string, checkInner bool,
 	args := []ObjQueue{}
 	for _, v := range toArg {
 		if k, ok := v.(ObjQueue); ok {
-			result := ExistInFromArr(k.Val, fromArgString, false)
+			isFirst := false
+			result := ExistInFromArr(k.Val, fromArgString, isFirst)
 			if result.Name != "" {
-
+				glog.Infoln("result.Name", result.Name)
 				if checkInner {
-					// c.P(k.Name, `:3,`)
-					c.P(k.Name, `: func(h *`, TrimFirstRune(result.Type), `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
+					c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
 					c.P(`	if h == nil {`)
-					c.P(`		return `, 3, ` `) //reflect.Zero(`, k.Type, `).Interface()
+					c.P(`		return reflect.Zero(reflect.TypeOf(reflect.`, strings.Title(k.Type), `)).Interface().(`, k.Type, `)`)
 					c.P(`	}`)
 					c.P(`	return h.`, k.Name)
 					c.P(`}(from.`, TrimFirstRune(result.Val), `),`)
@@ -173,14 +193,17 @@ func (c *copy) generateStruct(toArg []interface{}, path string, checkInner bool,
 			}
 			// args = append(args, ObjQueue{Name: k.Name, Type: k.Type})
 		} else if mp, oki := v.(map[ObjQueue][]interface{}); oki {
+			checkInner = false
+			checkOuter = true
+			path = "to."
 			for key, mp1Val := range mp {
 				if checkInner {
 					path = key.Name
-					c.P(path, `: &`, TrimFirstRune(key.Type), `{`)
+					c.P(path, `: &`, key.Type, `{`)
 				} else {
 					path = path + key.Name
 					c.P(`if !CheckNull(from`, key.Val, `){`)
-					c.P(path, `= &`, TrimFirstRune(key.Type), `{`)
+					c.P(path, `= &`, (key.Type), `{`)
 
 				}
 
