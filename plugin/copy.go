@@ -14,16 +14,13 @@ import (
 
 const (
 	contextPkgPath = "context"
+	reflectPkgPath = "reflect"
 )
 
 type copy struct {
 	*generator.Generator
 	generator.PluginImports
-	glogPkg    generator.Single
 	protoPkg   generator.Single
-	reflectPkg generator.Single
-	timePkg    generator.Single
-	flagPkg    generator.Single
 	stringsPkg generator.Single
 }
 
@@ -38,6 +35,7 @@ func (c *copy) Name() string {
 
 var (
 	contextPkg string
+	reflectPkg string
 )
 
 func (c *copy) Init(g *generator.Generator) {
@@ -55,22 +53,16 @@ func (c *copy) typeName(str string) string {
 
 func (c *copy) Generate(file *generator.FileDescriptor) {
 	c.PluginImports = generator.NewPluginImports(c.Generator)
-
-	c.glogPkg = c.NewImport("githuc.com/golang/glog")
 	c.stringsPkg = c.NewImport("strings")
 	c.protoPkg = c.NewImport("git.zapa.cloud/merchant-tools/helper/proto")
-	c.reflectPkg = c.NewImport("reflect")
-	c.timePkg = c.NewImport("time")
-	c.flagPkg = c.NewImport("flag")
-
+	// c.reflectPkg = c.NewImport("reflect")
 	contextPkg = string(c.Generator.AddImport(contextPkgPath))
-
+	reflectPkg = string(c.Generator.AddImport(reflectPkgPath))
 	c.P("// Reference imports to suppress errors if they are not otherwise used.")
 	c.P("var _ ", contextPkg, ".Context")
-	// c.P("var _ ", grpcPkg, ".ClientConn")
 	c.P()
 
-	c.P(`func CheckNull(field interface{}) bool {`)
+	c.P(`func isNil(field interface{}) bool {`)
 	c.P(`zero := reflect.Zero(reflect.TypeOf(field)).Interface()`)
 	c.P(`if reflect.DeepEqual(field, zero) {`)
 	c.P(`return true`)
@@ -129,13 +121,13 @@ func getTypeOfFied(field *descriptor.FieldDescriptorProto) string {
 	}
 	return "PrimitiveType"
 }
-func getNestedType(input string) string {
+func (c *copy) getNestedType(input string) (string, bool) {
 	// glog.Infoln("input", input)
 	if input == "google.protobuf.Timestamp" {
-		return "timestamp.Timestamp"
+		return "timestamp.Timestamp", false
 	}
 	if input == "google.type.Date" {
-		return "proto.Date"
+		return c.protoPkg.Use() + `.Date`, false
 	}
 	arr := strings.Split(input, ".")
 	if len(arr) > 2 {
@@ -144,23 +136,28 @@ func getNestedType(input string) string {
 			concatSrting += arr[i] + `_`
 		}
 		concatSrting += arr[len(arr)-1]
-		return concatSrting
+		return concatSrting, true
 	}
-	return input
+	return input, false
 }
 func (c *copy) getFieldsOfMsg(msg *descriptor.DescriptorProto, path string) []interface{} {
 	args := []interface{}{}
 	for _, v := range msg.Field {
+
 		if v.IsMessage() {
-			path = ""
+			// path = ""
 			mpMsg := make(map[ObjQueue][]interface{})
 			msg1 := c.ObjectNamed(v.GetTypeName()).(*generator.Descriptor).DescriptorProto
 			path = path + "." + strings.Title(v.GetJsonName())
 			x := c.getFieldsOfMsg(msg1, path)
-			typeNested := getNestedType(TrimFirstRune(v.GetTypeName()))
+			typeNested, _ := c.getNestedType(TrimFirstRune(v.GetTypeName()))
+			// if ok {
+			// 	path =
+			// }
 			// glog.Infoln("typeNested", typeNested)
 			mpMsg[ObjQueue{Name: strings.Title(v.GetJsonName()), Type: typeNested, Val: path}] = x
 			args = append(args, mpMsg)
+			path = ""
 		} else {
 			primitiveType := getTypeOfFied(v)
 			args = append(args, ObjQueue{Name: strings.Title(v.GetJsonName()), Type: primitiveType, Val: path + "." + strings.Title(v.GetJsonName())})
@@ -173,10 +170,9 @@ func (c *copy) generateStruct(toArg []interface{}, path string, checkInner bool,
 	args := []ObjQueue{}
 	for _, v := range toArg {
 		if k, ok := v.(ObjQueue); ok {
-			isFirst := false
-			result := ExistInFromArr(k.Val, fromArgString, isFirst)
+			result := ExistInFromArr(k.Val, fromArgString)
 			if result.Name != "" {
-				glog.Infoln("result.Name", result.Name)
+				// glog.Infoln("result.Name", result.Name)
 				if checkInner {
 					c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
 					c.P(`	if h == nil {`)
@@ -186,23 +182,22 @@ func (c *copy) generateStruct(toArg []interface{}, path string, checkInner bool,
 					c.P(`}(from.`, TrimFirstRune(result.Val), `),`)
 
 				} else {
-					c.P(`if !CheckNull(from`, k.Val, `){`)
+					c.P(`if !isNil(from`, k.Val, `){`)
 					c.P(path+k.Name, `= from`, k.Val)
 					c.P(`}`)
 				}
 			}
 			// args = append(args, ObjQueue{Name: k.Name, Type: k.Type})
 		} else if mp, oki := v.(map[ObjQueue][]interface{}); oki {
-			checkInner = false
-			checkOuter = true
-			path = "to."
+
+			//
 			for key, mp1Val := range mp {
 				if checkInner {
 					path = key.Name
 					c.P(path, `: &`, key.Type, `{`)
 				} else {
 					path = path + key.Name
-					c.P(`if !CheckNull(from`, key.Val, `){`)
+					c.P(`if !isNil(from`, key.Val, `){`)
 					c.P(path, `= &`, (key.Type), `{`)
 
 				}
@@ -217,6 +212,9 @@ func (c *copy) generateStruct(toArg []interface{}, path string, checkInner bool,
 				} else {
 					c.P(`},`)
 				}
+				checkInner = false
+				checkOuter = true
+				path = "to."
 			}
 		}
 	}
@@ -244,7 +242,7 @@ func (c *copy) msgToString(fromArg []interface{}) []interface{} {
 }
 func (c *copy) generateClientMethod(servName, fullServName, serviceDescVar string, method *pb.MethodDescriptorProto) {
 	// outType := c.typeName(method.GetOutputType())
-
+	// glog.Infoln("outType", outType)
 	// c.P("func (c *", unexport(servName), ") ", c.generateClientSignature(servName, method, true), "{")
 
 	// c.P(`for _, v := range from {`)

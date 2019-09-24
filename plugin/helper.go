@@ -2,8 +2,6 @@ package plugin
 
 import (
 	"reflect"
-
-	"github.com/golang/glog"
 )
 
 // TrimFirstRune ...
@@ -37,7 +35,7 @@ func checkIntoArrString(input string, fromArg []interface{}) ObjQueue {
 			for i := 0; i < s.Len(); i++ {
 				ret[i] = s.Index(i).Interface()
 			}
-			return ExistInFromArr(input, ret, false)
+			return checkIntoArrString(input, ret)
 
 		}
 	}
@@ -45,10 +43,10 @@ func checkIntoArrString(input string, fromArg []interface{}) ObjQueue {
 }
 
 // ExistInFromArr ...
-func ExistInFromArr(input string, fromArg []interface{}, isFirst bool) ObjQueue {
+func ExistInFromArr(input string, fromArg []interface{}) ObjQueue {
 	for _, v := range fromArg {
 
-		glog.Infoln("dsfds", v, input)
+		// glog.Infoln("dsfds", v, input)
 		if _, ok := v.(string); ok {
 			if input == v {
 				// glog.Infoln("input == v", input, v)
@@ -56,8 +54,10 @@ func ExistInFromArr(input string, fromArg []interface{}, isFirst bool) ObjQueue 
 			}
 		} else {
 			s := reflect.ValueOf(v)
+			// glog.Infoln("s.Kind()", s.Kind(), s, input)
 			if s.Kind() != reflect.Slice {
-				panic("InterfaceSlice() given a non-slice type")
+				// glog.Infoln("input", input)
+				panic("InterfaceSlice() given a non-slice type1")
 			}
 
 			ret := make([]interface{}, s.Len())
@@ -67,12 +67,13 @@ func ExistInFromArr(input string, fromArg []interface{}, isFirst bool) ObjQueue 
 			}
 			result := checkIntoArrString(input, ret)
 			if result.Name == "" {
-				glog.Infoln("dsfgfsgsfgsfgsfgfsgfsg")
+
+				// glog.Infoln("dsfgfsgsfgsfgsfgfsgfsg")
 				continue
 			} else {
 				return result
 			}
-			// return ExistInFromArr(input, ret, true)
+			// return ExistInFromArr(input, ret)
 
 		}
 	}

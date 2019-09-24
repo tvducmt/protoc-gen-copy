@@ -4,15 +4,14 @@
 package copy
 
 import (
-	context "context"
 	fmt "fmt"
 	math "math"
-	"reflect"
-
 	proto "github.com/gogo/protobuf/proto"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	core_service "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
 	middleware "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware"
+	reflect "reflect"
+	context "context"
+	git_zapa_cloud_merchant_tools_helper_proto "git.zapa.cloud/merchant-tools/helper/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -23,7 +22,7 @@ var _ = math.Inf
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
 
-func CheckNull(field interface{}) bool {
+func isNil(field interface{}) bool {
 	zero := reflect.Zero(reflect.TypeOf(field)).Interface()
 	if reflect.DeepEqual(field, zero) {
 		return true
@@ -39,21 +38,21 @@ func NewCopy() *copy {
 }
 
 func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation, to *core_service.BODetailReconciliation) error {
-	if !CheckNull(from.FromDate) {
-		to.FromDate = &proto.Date{
-			Year: func(h *proto.Date) int32 {
+	if !isNil(from.FromDate) {
+		to.FromDate = &git_zapa_cloud_merchant_tools_helper_proto.Date{
+			Year: func(h *git_zapa_cloud_merchant_tools_helper_proto.Date) int32 {
 				if h == nil {
 					return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
 				}
 				return h.Year
 			}(from.FromDate),
-			Month: func(h *proto.Date) int32 {
+			Month: func(h *git_zapa_cloud_merchant_tools_helper_proto.Date) int32 {
 				if h == nil {
 					return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
 				}
 				return h.Month
 			}(from.FromDate),
-			Day: func(h *proto.Date) int32 {
+			Day: func(h *git_zapa_cloud_merchant_tools_helper_proto.Date) int32 {
 				if h == nil {
 					return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
 				}
@@ -61,7 +60,7 @@ func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation
 			}(from.FromDate),
 		}
 	}
-	if !CheckNull(from.TransTime) {
+	if !isNil(from.TransTime) {
 		to.TransTime = &timestamp.Timestamp{
 			Seconds: func(h *timestamp.Timestamp) int64 {
 				if h == nil {
@@ -75,6 +74,62 @@ func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation
 				}
 				return h.Nanos
 			}(from.TransTime),
+		}
+	}
+	if !isNil(from.CountableAttribute) {
+		to.CountableAttribute = &core.BODetailReconciliation_CountableAttribute{
+			MerchantRefundAmount: func(h *middleware.BODetailReconciliation_CountableAttribute) int64 {
+				if h == nil {
+					return reflect.Zero(reflect.TypeOf(reflect.Int64)).Interface().(int64)
+				}
+				return h.MerchantRefundAmount
+			}(from.CountableAttribute),
+			ReturnPercentFeeNotVat: func(h *middleware.BODetailReconciliation_CountableAttribute) double {
+				if h == nil {
+					return reflect.Zero(reflect.TypeOf(reflect.Double)).Interface().(double)
+				}
+				return h.ReturnPercentFeeNotVat
+			}(from.CountableAttribute),
+			TpeBankCode: func(h *middleware.BODetailReconciliation_CountableAttribute) string {
+				if h == nil {
+					return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+				}
+				return h.TpeBankCode
+			}(from.CountableAttribute),
+			Hello: &core.Hello{
+				H1: func(h *middleware.Hello) string {
+					if h == nil {
+						return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+					}
+					return h.H1
+				}(from.CountableAttribute.Hello),
+				H2: func(h *middleware.Hello) string {
+					if h == nil {
+						return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+					}
+					return h.H2
+				}(from.CountableAttribute.Hello),
+			},
+		}
+	}
+	if !isNil(from.Ductran) {
+		to.Ductran = &core.BODetailReconciliation_Profile{
+			Name: func(h *middleware.BODetailReconciliation_Profile) string {
+				if h == nil {
+					return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+				}
+				return h.Name
+			}(from.Ductran),
+		}
+	}
+	if !isNil(from.Ductran1) {
+		to.Ductran1 = &core.BODetailReconciliation_Profile{
+			Name: func(h *middleware.BODetailReconciliation_Profile) string {
+				if h == nil {
+					return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+				}
+				return h.Name
+			}(from.Ductran1),
 		}
 	}
 	return nil
