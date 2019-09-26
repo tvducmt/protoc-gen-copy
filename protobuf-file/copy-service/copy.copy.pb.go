@@ -4,16 +4,17 @@
 package copy
 
 import (
+	context "context"
 	fmt "fmt"
 	math "math"
-	proto "github.com/gogo/protobuf/proto"
-	middleware "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware"
-	_ "google.golang.org/grpc"
-	context "context"
 	reflect "reflect"
+
+	git_zapa_cloud_merchant_tools_helper_proto "git.zapa.cloud/merchant-tools/helper/proto"
+	proto "github.com/gogo/protobuf/proto"
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	core_service "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
-	git_zapa_cloud_merchant_tools_helper_proto "git.zapa.cloud/merchant-tools/helper/proto"
+	middleware "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware"
+	_ "google.golang.org/grpc"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -62,52 +63,6 @@ func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation
 			}(from.FromDate),
 		}
 	}
-	if !isNil(from.CountableAttribute) {
-		to.CountableAttribute = &core_service.BODetailReconciliation_CountableAttribute{
-			Data: &core_service.BODetailReconciliation_CountableAttribute_Data{
-				K1: func(h *middleware.BODetailReconciliation_CountableAttribute_Data) string {
-					if h == nil {
-						return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-					}
-					return h.K1
-				}(from.CountableAttribute.Data),
-				K2: func(h *middleware.BODetailReconciliation_CountableAttribute_Data) string {
-					if h == nil {
-						return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-					}
-					return h.K2
-				}(from.CountableAttribute.Data),
-				Hello: &core_service.Hello{
-					H1: func(h *middleware.Hello) string {
-						if h == nil {
-							return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-						}
-						return h.H1
-					}(from.CountableAttribute.Data.Hello),
-					H2: func(h *middleware.Hello) string {
-						if h == nil {
-							return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-						}
-						return h.H2
-					}(from.CountableAttribute.Data.Hello),
-				},
-				Hi: &core_service.BODetailReconciliation_CountableAttribute_Hi{},
-			},
-			TpeBankCode: func(h *middleware.BODetailReconciliation_CountableAttribute) string {
-				if h == nil {
-					return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-				}
-				return h.TpeBankCode
-			}(from.CountableAttribute),
-			Hello: &core_service.Hello{},
-			ItemCount: func(h *middleware.BODetailReconciliation_CountableAttribute) int32 {
-				if h == nil {
-					return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
-				}
-				return h.ItemCount
-			}(from.CountableAttribute),
-		}
-	}
 	if !isNil(from.TransTime) {
 		to.TransTime = &timestamp.Timestamp{
 			Seconds: func(h *timestamp.Timestamp) int64 {
@@ -122,6 +77,91 @@ func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation
 				}
 				return h.Nanos
 			}(from.TransTime),
+		}
+	}
+	if !isNil(from.ZpSystemName) {
+		to.ZpSystemName = from.ZpSystemName
+	}
+	if !isNil(from.VoucherCode) {
+		to.VoucherCode = core_service.BODetailReconciliation_VoucherCode(from.VoucherCode)
+	}
+	if !isNil(from.TimeAttribute) {
+		to.TimeAttribute = &core_service.BODetailReconciliation_TimeAttribute{
+			RetryTime: &timestamp.Timestamp{
+				Seconds: func(h *timestamp.Timestamp) int64 {
+					if h == nil {
+						return reflect.Zero(reflect.TypeOf(reflect.Int64)).Interface().(int64)
+					}
+					return h.Seconds
+				}(from.TimeAttribute.RetryTime),
+				Nanos: func(h *timestamp.Timestamp) int32 {
+					if h == nil {
+						return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
+					}
+					return h.Nanos
+				}(from.TimeAttribute.RetryTime),
+			},
+		}
+	}
+	if !isNil(from.CountableAttribute) {
+		to.CountableAttribute = &core_service.BODetailReconciliation_CountableAttribute{
+			RefundApi: func(h *middleware.BODetailReconciliation_CountableAttribute) core_service.RefundTransLogApi {
+				if h == nil {
+					return 0
+				}
+				return core_service.RefundTransLogApi(h.RefundApi)
+			}(from.CountableAttribute),
+			Data: &core_service.BODetailReconciliation_CountableAttribute_Transaction{
+				K1: func(h *middleware.BODetailReconciliation_CountableAttribute_Transaction) string {
+					if h == nil {
+						return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+					}
+					return h.K1
+				}(from.CountableAttribute.Data),
+				K2: func(h *middleware.BODetailReconciliation_CountableAttribute_Transaction) string {
+					if h == nil {
+						return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+					}
+					return h.K2
+				}(from.CountableAttribute.Data),
+				Stm: &core_service.Statement{
+					H1: func(h *middleware.Statement) string {
+						if h == nil {
+							return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+						}
+						return h.H1
+					}(from.CountableAttribute.Data.Stm),
+					H2: func(h *middleware.Statement) string {
+						if h == nil {
+							return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+						}
+						return h.H2
+					}(from.CountableAttribute.Data.Stm),
+				},
+			},
+			TpeBankCode: func(h *middleware.BODetailReconciliation_CountableAttribute) string {
+				if h == nil {
+					return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+				}
+				return h.TpeBankCode
+			}(from.CountableAttribute),
+			Stm: &core_service.Statement{},
+			ItemCount: func(h *middleware.BODetailReconciliation_CountableAttribute) int32 {
+				if h == nil {
+					return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
+				}
+				return h.ItemCount
+			}(from.CountableAttribute),
+		}
+	}
+	if !isNil(from.P1) {
+		to.P1 = &core_service.BODetailReconciliation_Profile{
+			Name: func(h *middleware.BODetailReconciliation_Profile) string {
+				if h == nil {
+					return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+				}
+				return h.Name
+			}(from.P1),
 		}
 	}
 	return nil

@@ -68,8 +68,8 @@ func ExistInFromArr(input string, fromArg []interface{}) ObjQueue {
 			}
 		} else {
 			s := reflect.ValueOf(v)
-			// glog.Infoln("s.Kind()", s.Kind(), s, input)
 			if s.Kind() != reflect.Slice {
+				glog.Infoln("s.Kind()", s.Kind(), s, input)
 				// glog.Infoln("input", input)
 				panic("InterfaceSlice() given a non-slice type1")
 			}

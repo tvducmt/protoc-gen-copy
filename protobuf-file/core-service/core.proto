@@ -7,86 +7,51 @@ import "google/protobuf/timestamp.proto";
 
 message BODetailReconciliation {
     google.type.Date from_date               = 1;
-    // // @inject_tag: es:"zpSystemName"
-    // string zp_system_name = 9;
+    google.protobuf.Timestamp trans_time     =  2;
+    string zp_system_name                   = 3;
 
-    // // @inject_tag: es:"voucherCode"
-    // VoucherCode voucher_code = 10;
+    VoucherCode voucher_code = 10;
 
-    // TimeAttribute time_attribute = 13;
+    TimeAttribute time_attribute = 13;
 
-    // // @inject_tag: es:"refundApi"
-    // RefundTransLogApi refund_api = 18;
+   
 
-  
-    // // @inject_tag: es:"transDate"
-    // google.protobuf.Timestamp trans_time = 24;
-
-//     // message TimeAttribute {
-// //     //     google.protobuf.Timestamp retry_time = 1;
-// //     // }
+    message TimeAttribute {
+        google.protobuf.Timestamp retry_time = 1;
+    }
     CountableAttribute countable_attribute = 14;
     message CountableAttribute {
-        // @inject_tag: es:"merchantRefundAmount"
-        // int64 merchant_refund_amount = 19;
-        Data data = 20;
+        RefundTransLogApi refund_api = 18;
+        Transaction data = 20;
         
-        message Data {
+        message Transaction {
             string k1 =1;
             string k2=2;
-            Hello hello=3;
-            Hi hi =4;
+            Statement stm=3;
         }
-        message Hi{
-            int32 hk =1;
-        }
-        // @inject_tag: es:"refundPercentFeeNotVat"
-        // double return_percent_fee_not_vat = 28;
-        // // @inject_tag: es:"tpeBankCode"
         string tpe_bank_code = 36;
-        Hello hello=3;
-        // @inject_tag: es:"itemCount"
+        Statement stm=3;
         int32 item_count = 38;
         
     }
-    // Profile ductran = 5;
-    // message Profile{
-    //     string Name =1;
-    // }
-    // Profile ductran1 = 6;
-    // message Profile1{
-    //     string Name =1;
-    // }
-    // message StatusAttribute {
-    //     ZalopayUserChargedStatus zalopay_user_charged_status = 10;
-    //     ZalopayStatus zalopay_status = 11;
-    // }
-    // enum ZalopayUserChargedStatus{
-    //     ZALOPAY_USER_CHARGED_STATUS_UNSPECIFICED    = 0;
-    //     ZUCS_YES   = 1;
-    //     ZUCS__NO    = 2;
-    // }
-    // enum ZalopayStatus{
-    //     ZALOPAY_STATUS_UNSPECIFICED    = 0;
-    //     ZS_YES   = 1;
-    //     ZS_NO    = 2;
-    // }
+    Profile p1 = 5;
+    message Profile{
+        string Name =1;
+    }
+    enum VoucherCode{
+        VOUCHER_CODE_UNSPECIFICED    = 0;
+        VC_YES   = 1;
+        VC_NO    = 2;
+    }
 
-    // enum VoucherCode{
-    //     VOUCHER_CODE_UNSPECIFICED    = 0;
-    //     VC_YES   = 1;
-    //     VC_NO    = 2;
-    // }
-    google.protobuf.Timestamp trans_time = 24;
 }
 
-// enum RefundTransLogApi {
-//     RTA_UNSPECIFIED = 0;
-//     RTA_FULL        = 1;
-//     RTA_PARTIAL     = 2;
-// }
-
-message Hello {
+enum RefundTransLogApi {
+    RTA_UNSPECIFIED = 0;
+    RTA_FULL        = 1;
+    RTA_PARTIAL     = 2;
+}
+message Statement {
     string h1 =1;
     string h2 =2;
 }

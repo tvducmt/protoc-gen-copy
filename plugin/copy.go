@@ -100,9 +100,10 @@ func unexport(s string) string { return strings.ToLower(s[:1]) + s[1:] }
 
 // ObjQueue ...
 type ObjQueue struct {
-	Name string
-	Type string
-	Val  string
+	Name   string
+	Type   string
+	Val    string
+	IsEnum bool
 }
 
 func getTypeOfFied(field *descriptor.FieldDescriptorProto) string {
@@ -155,6 +156,11 @@ func (c *copy) getFieldsOfMsg(msg *descriptor.DescriptorProto, path string) []in
 			mpMsg[ObjQueue{Name: strings.Title(v.GetJsonName()), Type: typeNested, Val: path}] = x
 			args = append(args, mpMsg)
 			path = ""
+		} else if v.IsEnum() {
+			// glog.Infoln("genumfdgfd", v.GetTypeName())
+			// path = path + "." + strings.Title(v.GetJsonName())
+			typeNested, _ := c.getNestedType(TrimFirstRune(v.GetTypeName()))
+			args = append(args, ObjQueue{Name: strings.Title(v.GetJsonName()), Type: typeNested, Val: path + "." + strings.Title(v.GetJsonName()), IsEnum: true})
 		} else {
 			primitiveType := getTypeOfFied(v)
 			args = append(args, ObjQueue{Name: strings.Title(v.GetJsonName()), Type: primitiveType, Val: path + "." + strings.Title(v.GetJsonName())})
@@ -166,20 +172,40 @@ func (c *copy) getFieldsOfMsg(msg *descriptor.DescriptorProto, path string) []in
 func (c *copy) generateStruct(v interface{}, path string, checkInner bool, checkOuter bool, fromArgString []interface{}) {
 
 	if k, ok := v.(ObjQueue); ok {
-		result := ExistInFromArr(k.Val, fromArgString)
-		if result.Name != "" {
-			if checkInner {
-				c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
-				c.P(`	if h == nil {`)
-				c.P(`		return reflect.Zero(reflect.TypeOf(reflect.`, strings.Title(k.Type), `)).Interface().(`, k.Type, `)`)
-				c.P(`	}`)
-				c.P(`	return h.`, k.Name)
-				c.P(`}(from.`, TrimFirstRune(result.Val), `),`)
+		if k.IsEnum {
+			result := ExistInFromArr(k.Val, fromArgString)
+			if result.Name != "" {
+				glog.Infoln("into herre", result.Name)
+				if checkInner {
+					c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
+					c.P(`	if h == nil {`)
+					c.P(`		return 0`)
+					c.P(`	}`)
+					c.P(`	return `, k.Type, `(h.`, k.Name, `)`)
+					c.P(`}(from.`, TrimFirstRune(result.Val), `),`)
 
-			} else {
-				c.P(`if !isNil(from`, k.Val, `){`)
-				c.P(path+k.Name, `= from`, k.Val)
-				c.P(`}`)
+				} else {
+					c.P(`if !isNil(from`, k.Val, `){`)
+					c.P(path+k.Name, `= `, k.Type, `(from`, k.Val, `)`)
+					c.P(`}`)
+				}
+			}
+		} else {
+			result := ExistInFromArr(k.Val, fromArgString)
+			if result.Name != "" {
+				if checkInner {
+					c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
+					c.P(`	if h == nil {`)
+					c.P(`		return reflect.Zero(reflect.TypeOf(reflect.`, strings.Title(k.Type), `)).Interface().(`, k.Type, `)`)
+					c.P(`	}`)
+					c.P(`	return h.`, k.Name)
+					c.P(`}(from.`, TrimFirstRune(result.Val), `),`)
+
+				} else {
+					c.P(`if !isNil(from`, k.Val, `){`)
+					c.P(path+k.Name, `= from`, k.Val)
+					c.P(`}`)
+				}
 			}
 		}
 
@@ -219,7 +245,16 @@ func (c *copy) msgToString(fromArg []interface{}) []interface{} {
 	// args = append(args, k.Val)
 	for _, v := range fromArg {
 		if k, ok := v.(ObjQueue); ok {
+			// if !k.IsEnum {
 			args = append(args, k.Val)
+			// } else {
+			// 	valMaping := []interface{}{
+			// 		k.Val,
+			// 	}
+			// 	glog.Infoln("valMaping", valMaping)
+			// 	valMaping = append([]interface{}{v}, valMaping...)
+			// 	args = append(args, valMaping)
+			// }
 
 		} else if mp, oki := v.(map[ObjQueue][]interface{}); oki {
 			for Key, mp1Val := range mp {

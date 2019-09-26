@@ -22,21 +22,73 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
+type RefundTransLogApi int32
+
+const (
+	RefundTransLogApi_RTA_UNSPECIFIED RefundTransLogApi = 0
+	RefundTransLogApi_RTA_FULL        RefundTransLogApi = 1
+	RefundTransLogApi_RTA_PARTIAL     RefundTransLogApi = 2
+)
+
+var RefundTransLogApi_name = map[int32]string{
+	0: "RTA_UNSPECIFIED",
+	1: "RTA_FULL",
+	2: "RTA_PARTIAL",
+}
+
+var RefundTransLogApi_value = map[string]int32{
+	"RTA_UNSPECIFIED": 0,
+	"RTA_FULL":        1,
+	"RTA_PARTIAL":     2,
+}
+
+func (x RefundTransLogApi) String() string {
+	return proto.EnumName(RefundTransLogApi_name, int32(x))
+}
+
+func (RefundTransLogApi) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_10e8b4c446957f50, []int{0}
+}
+
+type BODetailReconciliation_VoucherCode int32
+
+const (
+	BODetailReconciliation_VOUCHER_CODE_UNSPECIFICED BODetailReconciliation_VoucherCode = 0
+	BODetailReconciliation_VC_YES                    BODetailReconciliation_VoucherCode = 1
+	BODetailReconciliation_VC_NO                     BODetailReconciliation_VoucherCode = 2
+)
+
+var BODetailReconciliation_VoucherCode_name = map[int32]string{
+	0: "VOUCHER_CODE_UNSPECIFICED",
+	1: "VC_YES",
+	2: "VC_NO",
+}
+
+var BODetailReconciliation_VoucherCode_value = map[string]int32{
+	"VOUCHER_CODE_UNSPECIFICED": 0,
+	"VC_YES":                    1,
+	"VC_NO":                     2,
+}
+
+func (x BODetailReconciliation_VoucherCode) String() string {
+	return proto.EnumName(BODetailReconciliation_VoucherCode_name, int32(x))
+}
+
+func (BODetailReconciliation_VoucherCode) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_10e8b4c446957f50, []int{0, 0}
+}
+
 type BODetailReconciliation struct {
-	FromDate *proto1.Date `protobuf:"bytes,1,opt,name=from_date,json=fromDate,proto3" json:"from_date,omitempty"`
-	// //     // message TimeAttribute {
-	// //     //     google.protobuf.Timestamp retry_time = 1;
-	// //     // }
-	CountableAttribute *BODetailReconciliation_CountableAttribute `protobuf:"bytes,14,opt,name=countable_attribute,json=countableAttribute,proto3" json:"countable_attribute,omitempty"`
-	//     enum VoucherCode{
-	//         VOUCHER_CODE_UNSPECIFICED    = 0;
-	//         VC_YES   = 1;
-	//         VC_NO    = 2;
-	//     }
-	TransTime            *timestamp.Timestamp `protobuf:"bytes,24,opt,name=trans_time,json=transTime,proto3" json:"trans_time,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
-	XXX_unrecognized     []byte               `json:"-"`
-	XXX_sizecache        int32                `json:"-"`
+	FromDate             *proto1.Date                               `protobuf:"bytes,1,opt,name=from_date,json=fromDate,proto3" json:"from_date,omitempty"`
+	TransTime            *timestamp.Timestamp                       `protobuf:"bytes,2,opt,name=trans_time,json=transTime,proto3" json:"trans_time,omitempty"`
+	ZpSystemName         string                                     `protobuf:"bytes,3,opt,name=zp_system_name,json=zpSystemName,proto3" json:"zp_system_name,omitempty"`
+	VoucherCode          BODetailReconciliation_VoucherCode         `protobuf:"varint,10,opt,name=voucher_code,json=voucherCode,proto3,enum=middleware.BODetailReconciliation_VoucherCode" json:"voucher_code,omitempty"`
+	TimeAttribute        *BODetailReconciliation_TimeAttribute      `protobuf:"bytes,13,opt,name=time_attribute,json=timeAttribute,proto3" json:"time_attribute,omitempty"`
+	CountableAttribute   *BODetailReconciliation_CountableAttribute `protobuf:"bytes,14,opt,name=countable_attribute,json=countableAttribute,proto3" json:"countable_attribute,omitempty"`
+	P1                   *BODetailReconciliation_Profile            `protobuf:"bytes,5,opt,name=p1,proto3" json:"p1,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                   `json:"-"`
+	XXX_unrecognized     []byte                                     `json:"-"`
+	XXX_sizecache        int32                                      `json:"-"`
 }
 
 func (m *BODetailReconciliation) Reset()         { *m = BODetailReconciliation{} }
@@ -71,13 +123,6 @@ func (m *BODetailReconciliation) GetFromDate() *proto1.Date {
 	return nil
 }
 
-func (m *BODetailReconciliation) GetCountableAttribute() *BODetailReconciliation_CountableAttribute {
-	if m != nil {
-		return m.CountableAttribute
-	}
-	return nil
-}
-
 func (m *BODetailReconciliation) GetTransTime() *timestamp.Timestamp {
 	if m != nil {
 		return m.TransTime
@@ -85,20 +130,89 @@ func (m *BODetailReconciliation) GetTransTime() *timestamp.Timestamp {
 	return nil
 }
 
+func (m *BODetailReconciliation) GetZpSystemName() string {
+	if m != nil {
+		return m.ZpSystemName
+	}
+	return ""
+}
+
+func (m *BODetailReconciliation) GetVoucherCode() BODetailReconciliation_VoucherCode {
+	if m != nil {
+		return m.VoucherCode
+	}
+	return BODetailReconciliation_VOUCHER_CODE_UNSPECIFICED
+}
+
+func (m *BODetailReconciliation) GetTimeAttribute() *BODetailReconciliation_TimeAttribute {
+	if m != nil {
+		return m.TimeAttribute
+	}
+	return nil
+}
+
+func (m *BODetailReconciliation) GetCountableAttribute() *BODetailReconciliation_CountableAttribute {
+	if m != nil {
+		return m.CountableAttribute
+	}
+	return nil
+}
+
+func (m *BODetailReconciliation) GetP1() *BODetailReconciliation_Profile {
+	if m != nil {
+		return m.P1
+	}
+	return nil
+}
+
+type BODetailReconciliation_TimeAttribute struct {
+	RetryTime            *timestamp.Timestamp `protobuf:"bytes,1,opt,name=retry_time,json=retryTime,proto3" json:"retry_time,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
+}
+
+func (m *BODetailReconciliation_TimeAttribute) Reset()         { *m = BODetailReconciliation_TimeAttribute{} }
+func (m *BODetailReconciliation_TimeAttribute) String() string { return proto.CompactTextString(m) }
+func (*BODetailReconciliation_TimeAttribute) ProtoMessage()    {}
+func (*BODetailReconciliation_TimeAttribute) Descriptor() ([]byte, []int) {
+	return fileDescriptor_10e8b4c446957f50, []int{0, 0}
+}
+
+func (m *BODetailReconciliation_TimeAttribute) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BODetailReconciliation_TimeAttribute.Unmarshal(m, b)
+}
+func (m *BODetailReconciliation_TimeAttribute) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BODetailReconciliation_TimeAttribute.Marshal(b, m, deterministic)
+}
+func (m *BODetailReconciliation_TimeAttribute) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BODetailReconciliation_TimeAttribute.Merge(m, src)
+}
+func (m *BODetailReconciliation_TimeAttribute) XXX_Size() int {
+	return xxx_messageInfo_BODetailReconciliation_TimeAttribute.Size(m)
+}
+func (m *BODetailReconciliation_TimeAttribute) XXX_DiscardUnknown() {
+	xxx_messageInfo_BODetailReconciliation_TimeAttribute.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BODetailReconciliation_TimeAttribute proto.InternalMessageInfo
+
+func (m *BODetailReconciliation_TimeAttribute) GetRetryTime() *timestamp.Timestamp {
+	if m != nil {
+		return m.RetryTime
+	}
+	return nil
+}
+
 type BODetailReconciliation_CountableAttribute struct {
-	// @inject_tag: es:"merchantRefundAmount"
-	// int64 merchant_refund_amount = 19;
-	Data *BODetailReconciliation_CountableAttribute_Data `protobuf:"bytes,20,opt,name=data,proto3" json:"data,omitempty"`
-	// @inject_tag: es:"refundPercentFeeNotVat"
-	// double return_percent_fee_not_vat = 28;
-	// @inject_tag: es:"tpeBankCode"
-	TpeBankCode string `protobuf:"bytes,36,opt,name=tpe_bank_code,json=tpeBankCode,proto3" json:"tpe_bank_code,omitempty"`
-	Hello       *Hello `protobuf:"bytes,3,opt,name=hello,proto3" json:"hello,omitempty"`
-	// @inject_tag: es:"itemCount"
-	ItemCount            int32    `protobuf:"varint,38,opt,name=item_count,json=itemCount,proto3" json:"item_count,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	RefundApi            RefundTransLogApi                                      `protobuf:"varint,18,opt,name=refund_api,json=refundApi,proto3,enum=middleware.RefundTransLogApi" json:"refund_api,omitempty"`
+	Data                 *BODetailReconciliation_CountableAttribute_Transaction `protobuf:"bytes,20,opt,name=data,proto3" json:"data,omitempty"`
+	TpeBankCode          string                                                 `protobuf:"bytes,36,opt,name=tpe_bank_code,json=tpeBankCode,proto3" json:"tpe_bank_code,omitempty"`
+	Stm                  *Statement                                             `protobuf:"bytes,3,opt,name=stm,proto3" json:"stm,omitempty"`
+	ItemCount            int32                                                  `protobuf:"varint,38,opt,name=item_count,json=itemCount,proto3" json:"item_count,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                               `json:"-"`
+	XXX_unrecognized     []byte                                                 `json:"-"`
+	XXX_sizecache        int32                                                  `json:"-"`
 }
 
 func (m *BODetailReconciliation_CountableAttribute) Reset() {
@@ -107,7 +221,7 @@ func (m *BODetailReconciliation_CountableAttribute) Reset() {
 func (m *BODetailReconciliation_CountableAttribute) String() string { return proto.CompactTextString(m) }
 func (*BODetailReconciliation_CountableAttribute) ProtoMessage()    {}
 func (*BODetailReconciliation_CountableAttribute) Descriptor() ([]byte, []int) {
-	return fileDescriptor_10e8b4c446957f50, []int{0, 0}
+	return fileDescriptor_10e8b4c446957f50, []int{0, 1}
 }
 
 func (m *BODetailReconciliation_CountableAttribute) XXX_Unmarshal(b []byte) error {
@@ -128,7 +242,14 @@ func (m *BODetailReconciliation_CountableAttribute) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_BODetailReconciliation_CountableAttribute proto.InternalMessageInfo
 
-func (m *BODetailReconciliation_CountableAttribute) GetData() *BODetailReconciliation_CountableAttribute_Data {
+func (m *BODetailReconciliation_CountableAttribute) GetRefundApi() RefundTransLogApi {
+	if m != nil {
+		return m.RefundApi
+	}
+	return RefundTransLogApi_RTA_UNSPECIFIED
+}
+
+func (m *BODetailReconciliation_CountableAttribute) GetData() *BODetailReconciliation_CountableAttribute_Transaction {
 	if m != nil {
 		return m.Data
 	}
@@ -142,9 +263,9 @@ func (m *BODetailReconciliation_CountableAttribute) GetTpeBankCode() string {
 	return ""
 }
 
-func (m *BODetailReconciliation_CountableAttribute) GetHello() *Hello {
+func (m *BODetailReconciliation_CountableAttribute) GetStm() *Statement {
 	if m != nil {
-		return m.Hello
+		return m.Stm
 	}
 	return nil
 }
@@ -156,122 +277,105 @@ func (m *BODetailReconciliation_CountableAttribute) GetItemCount() int32 {
 	return 0
 }
 
-type BODetailReconciliation_CountableAttribute_Data struct {
-	K1                   string                                        `protobuf:"bytes,1,opt,name=k1,proto3" json:"k1,omitempty"`
-	K2                   string                                        `protobuf:"bytes,2,opt,name=k2,proto3" json:"k2,omitempty"`
-	Hello                *Hello                                        `protobuf:"bytes,3,opt,name=hello,proto3" json:"hello,omitempty"`
-	Hi                   *BODetailReconciliation_CountableAttribute_Hi `protobuf:"bytes,4,opt,name=hi,proto3" json:"hi,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                                      `json:"-"`
-	XXX_unrecognized     []byte                                        `json:"-"`
-	XXX_sizecache        int32                                         `json:"-"`
+type BODetailReconciliation_CountableAttribute_Transaction struct {
+	K1                   string     `protobuf:"bytes,1,opt,name=k1,proto3" json:"k1,omitempty"`
+	K2                   string     `protobuf:"bytes,2,opt,name=k2,proto3" json:"k2,omitempty"`
+	Stm                  *Statement `protobuf:"bytes,3,opt,name=stm,proto3" json:"stm,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
 }
 
-func (m *BODetailReconciliation_CountableAttribute_Data) Reset() {
-	*m = BODetailReconciliation_CountableAttribute_Data{}
+func (m *BODetailReconciliation_CountableAttribute_Transaction) Reset() {
+	*m = BODetailReconciliation_CountableAttribute_Transaction{}
 }
-func (m *BODetailReconciliation_CountableAttribute_Data) String() string {
+func (m *BODetailReconciliation_CountableAttribute_Transaction) String() string {
 	return proto.CompactTextString(m)
 }
-func (*BODetailReconciliation_CountableAttribute_Data) ProtoMessage() {}
-func (*BODetailReconciliation_CountableAttribute_Data) Descriptor() ([]byte, []int) {
-	return fileDescriptor_10e8b4c446957f50, []int{0, 0, 0}
+func (*BODetailReconciliation_CountableAttribute_Transaction) ProtoMessage() {}
+func (*BODetailReconciliation_CountableAttribute_Transaction) Descriptor() ([]byte, []int) {
+	return fileDescriptor_10e8b4c446957f50, []int{0, 1, 0}
 }
 
-func (m *BODetailReconciliation_CountableAttribute_Data) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BODetailReconciliation_CountableAttribute_Data.Unmarshal(m, b)
+func (m *BODetailReconciliation_CountableAttribute_Transaction) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BODetailReconciliation_CountableAttribute_Transaction.Unmarshal(m, b)
 }
-func (m *BODetailReconciliation_CountableAttribute_Data) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BODetailReconciliation_CountableAttribute_Data.Marshal(b, m, deterministic)
+func (m *BODetailReconciliation_CountableAttribute_Transaction) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BODetailReconciliation_CountableAttribute_Transaction.Marshal(b, m, deterministic)
 }
-func (m *BODetailReconciliation_CountableAttribute_Data) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BODetailReconciliation_CountableAttribute_Data.Merge(m, src)
+func (m *BODetailReconciliation_CountableAttribute_Transaction) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BODetailReconciliation_CountableAttribute_Transaction.Merge(m, src)
 }
-func (m *BODetailReconciliation_CountableAttribute_Data) XXX_Size() int {
-	return xxx_messageInfo_BODetailReconciliation_CountableAttribute_Data.Size(m)
+func (m *BODetailReconciliation_CountableAttribute_Transaction) XXX_Size() int {
+	return xxx_messageInfo_BODetailReconciliation_CountableAttribute_Transaction.Size(m)
 }
-func (m *BODetailReconciliation_CountableAttribute_Data) XXX_DiscardUnknown() {
-	xxx_messageInfo_BODetailReconciliation_CountableAttribute_Data.DiscardUnknown(m)
+func (m *BODetailReconciliation_CountableAttribute_Transaction) XXX_DiscardUnknown() {
+	xxx_messageInfo_BODetailReconciliation_CountableAttribute_Transaction.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_BODetailReconciliation_CountableAttribute_Data proto.InternalMessageInfo
+var xxx_messageInfo_BODetailReconciliation_CountableAttribute_Transaction proto.InternalMessageInfo
 
-func (m *BODetailReconciliation_CountableAttribute_Data) GetK1() string {
+func (m *BODetailReconciliation_CountableAttribute_Transaction) GetK1() string {
 	if m != nil {
 		return m.K1
 	}
 	return ""
 }
 
-func (m *BODetailReconciliation_CountableAttribute_Data) GetK2() string {
+func (m *BODetailReconciliation_CountableAttribute_Transaction) GetK2() string {
 	if m != nil {
 		return m.K2
 	}
 	return ""
 }
 
-func (m *BODetailReconciliation_CountableAttribute_Data) GetHello() *Hello {
+func (m *BODetailReconciliation_CountableAttribute_Transaction) GetStm() *Statement {
 	if m != nil {
-		return m.Hello
+		return m.Stm
 	}
 	return nil
 }
 
-func (m *BODetailReconciliation_CountableAttribute_Data) GetHi() *BODetailReconciliation_CountableAttribute_Hi {
-	if m != nil {
-		return m.Hi
-	}
-	return nil
-}
-
-type BODetailReconciliation_CountableAttribute_Hi struct {
-	Hk                   int32    `protobuf:"varint,1,opt,name=hk,proto3" json:"hk,omitempty"`
+type BODetailReconciliation_Profile struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=Name,proto3" json:"Name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *BODetailReconciliation_CountableAttribute_Hi) Reset() {
-	*m = BODetailReconciliation_CountableAttribute_Hi{}
-}
-func (m *BODetailReconciliation_CountableAttribute_Hi) String() string {
-	return proto.CompactTextString(m)
-}
-func (*BODetailReconciliation_CountableAttribute_Hi) ProtoMessage() {}
-func (*BODetailReconciliation_CountableAttribute_Hi) Descriptor() ([]byte, []int) {
-	return fileDescriptor_10e8b4c446957f50, []int{0, 0, 1}
+func (m *BODetailReconciliation_Profile) Reset()         { *m = BODetailReconciliation_Profile{} }
+func (m *BODetailReconciliation_Profile) String() string { return proto.CompactTextString(m) }
+func (*BODetailReconciliation_Profile) ProtoMessage()    {}
+func (*BODetailReconciliation_Profile) Descriptor() ([]byte, []int) {
+	return fileDescriptor_10e8b4c446957f50, []int{0, 2}
 }
 
-func (m *BODetailReconciliation_CountableAttribute_Hi) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BODetailReconciliation_CountableAttribute_Hi.Unmarshal(m, b)
+func (m *BODetailReconciliation_Profile) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BODetailReconciliation_Profile.Unmarshal(m, b)
 }
-func (m *BODetailReconciliation_CountableAttribute_Hi) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BODetailReconciliation_CountableAttribute_Hi.Marshal(b, m, deterministic)
+func (m *BODetailReconciliation_Profile) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BODetailReconciliation_Profile.Marshal(b, m, deterministic)
 }
-func (m *BODetailReconciliation_CountableAttribute_Hi) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BODetailReconciliation_CountableAttribute_Hi.Merge(m, src)
+func (m *BODetailReconciliation_Profile) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BODetailReconciliation_Profile.Merge(m, src)
 }
-func (m *BODetailReconciliation_CountableAttribute_Hi) XXX_Size() int {
-	return xxx_messageInfo_BODetailReconciliation_CountableAttribute_Hi.Size(m)
+func (m *BODetailReconciliation_Profile) XXX_Size() int {
+	return xxx_messageInfo_BODetailReconciliation_Profile.Size(m)
 }
-func (m *BODetailReconciliation_CountableAttribute_Hi) XXX_DiscardUnknown() {
-	xxx_messageInfo_BODetailReconciliation_CountableAttribute_Hi.DiscardUnknown(m)
+func (m *BODetailReconciliation_Profile) XXX_DiscardUnknown() {
+	xxx_messageInfo_BODetailReconciliation_Profile.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_BODetailReconciliation_CountableAttribute_Hi proto.InternalMessageInfo
+var xxx_messageInfo_BODetailReconciliation_Profile proto.InternalMessageInfo
 
-func (m *BODetailReconciliation_CountableAttribute_Hi) GetHk() int32 {
+func (m *BODetailReconciliation_Profile) GetName() string {
 	if m != nil {
-		return m.Hk
+		return m.Name
 	}
-	return 0
+	return ""
 }
 
-// enum RefundTransLogApi {
-//     RTA_UNSPECIFIED = 0;
-//     RTA_FULL        = 1;
-//     RTA_PARTIAL     = 2;
-// }
-type Hello struct {
+type Statement struct {
 	H1                   string   `protobuf:"bytes,1,opt,name=h1,proto3" json:"h1,omitempty"`
 	H2                   string   `protobuf:"bytes,2,opt,name=h2,proto3" json:"h2,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -279,39 +383,39 @@ type Hello struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Hello) Reset()         { *m = Hello{} }
-func (m *Hello) String() string { return proto.CompactTextString(m) }
-func (*Hello) ProtoMessage()    {}
-func (*Hello) Descriptor() ([]byte, []int) {
+func (m *Statement) Reset()         { *m = Statement{} }
+func (m *Statement) String() string { return proto.CompactTextString(m) }
+func (*Statement) ProtoMessage()    {}
+func (*Statement) Descriptor() ([]byte, []int) {
 	return fileDescriptor_10e8b4c446957f50, []int{1}
 }
 
-func (m *Hello) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Hello.Unmarshal(m, b)
+func (m *Statement) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Statement.Unmarshal(m, b)
 }
-func (m *Hello) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Hello.Marshal(b, m, deterministic)
+func (m *Statement) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Statement.Marshal(b, m, deterministic)
 }
-func (m *Hello) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Hello.Merge(m, src)
+func (m *Statement) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Statement.Merge(m, src)
 }
-func (m *Hello) XXX_Size() int {
-	return xxx_messageInfo_Hello.Size(m)
+func (m *Statement) XXX_Size() int {
+	return xxx_messageInfo_Statement.Size(m)
 }
-func (m *Hello) XXX_DiscardUnknown() {
-	xxx_messageInfo_Hello.DiscardUnknown(m)
+func (m *Statement) XXX_DiscardUnknown() {
+	xxx_messageInfo_Statement.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Hello proto.InternalMessageInfo
+var xxx_messageInfo_Statement proto.InternalMessageInfo
 
-func (m *Hello) GetH1() string {
+func (m *Statement) GetH1() string {
 	if m != nil {
 		return m.H1
 	}
 	return ""
 }
 
-func (m *Hello) GetH2() string {
+func (m *Statement) GetH2() string {
 	if m != nil {
 		return m.H2
 	}
@@ -319,42 +423,59 @@ func (m *Hello) GetH2() string {
 }
 
 func init() {
+	proto.RegisterEnum("middleware.RefundTransLogApi", RefundTransLogApi_name, RefundTransLogApi_value)
+	proto.RegisterEnum("middleware.BODetailReconciliation_VoucherCode", BODetailReconciliation_VoucherCode_name, BODetailReconciliation_VoucherCode_value)
 	proto.RegisterType((*BODetailReconciliation)(nil), "middleware.BODetailReconciliation")
+	proto.RegisterType((*BODetailReconciliation_TimeAttribute)(nil), "middleware.BODetailReconciliation.TimeAttribute")
 	proto.RegisterType((*BODetailReconciliation_CountableAttribute)(nil), "middleware.BODetailReconciliation.CountableAttribute")
-	proto.RegisterType((*BODetailReconciliation_CountableAttribute_Data)(nil), "middleware.BODetailReconciliation.CountableAttribute.Data")
-	proto.RegisterType((*BODetailReconciliation_CountableAttribute_Hi)(nil), "middleware.BODetailReconciliation.CountableAttribute.Hi")
-	proto.RegisterType((*Hello)(nil), "middleware.Hello")
+	proto.RegisterType((*BODetailReconciliation_CountableAttribute_Transaction)(nil), "middleware.BODetailReconciliation.CountableAttribute.Transaction")
+	proto.RegisterType((*BODetailReconciliation_Profile)(nil), "middleware.BODetailReconciliation.Profile")
+	proto.RegisterType((*Statement)(nil), "middleware.Statement")
 }
 
 func init() { proto.RegisterFile("middleware.proto", fileDescriptor_10e8b4c446957f50) }
 
 var fileDescriptor_10e8b4c446957f50 = []byte{
-	// 420 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x91, 0x4f, 0x8b, 0xd3, 0x40,
-	0x18, 0xc6, 0x49, 0xb6, 0x15, 0xf3, 0x2e, 0x2e, 0x3a, 0x2e, 0x32, 0x04, 0xc4, 0x52, 0xc4, 0xed,
-	0xc5, 0x84, 0xad, 0x2c, 0xa8, 0x37, 0x77, 0xf7, 0xd0, 0x93, 0xc2, 0xe0, 0x3d, 0x4c, 0x92, 0xb7,
-	0x9d, 0x21, 0x93, 0x4c, 0x48, 0xdf, 0x22, 0x7a, 0xf4, 0x5b, 0xf8, 0x2d, 0xfd, 0x08, 0x32, 0x6f,
-	0x9b, 0x75, 0x61, 0x3d, 0x48, 0x6f, 0x79, 0xff, 0x3d, 0xcf, 0x2f, 0xcf, 0xc0, 0xd3, 0xd6, 0xd6,
-	0xb5, 0xc3, 0x6f, 0x7a, 0xc0, 0xac, 0x1f, 0x3c, 0x79, 0x01, 0x7f, 0x3b, 0xe9, 0xab, 0x8d, 0xf7,
-	0x1b, 0x87, 0x39, 0x4f, 0xca, 0xdd, 0x3a, 0x27, 0xdb, 0xe2, 0x96, 0x74, 0xdb, 0xef, 0x97, 0xd3,
-	0xab, 0x8d, 0xa5, 0xec, 0x87, 0xee, 0x75, 0x56, 0x39, 0xbf, 0xab, 0xf3, 0x16, 0x87, 0xca, 0xe8,
-	0x8e, 0xde, 0x92, 0xf7, 0x6e, 0x9b, 0x1b, 0x74, 0x3d, 0x0e, 0xfb, 0xf3, 0x9c, 0xbe, 0xf7, 0x07,
-	0x8f, 0xf9, 0xef, 0x09, 0xbc, 0xb8, 0xfe, 0x72, 0x8b, 0xa4, 0xad, 0x53, 0x58, 0xf9, 0xae, 0xb2,
-	0xce, 0x6a, 0xb2, 0xbe, 0x13, 0x19, 0x24, 0xeb, 0xc1, 0xb7, 0x45, 0xad, 0x09, 0x65, 0x34, 0x8b,
-	0x16, 0xa7, 0xcb, 0x67, 0xd9, 0x1e, 0x23, 0x63, 0x85, 0x5b, 0x4d, 0xa8, 0x1e, 0x87, 0x9d, 0xf0,
-	0x25, 0xd6, 0xf0, 0xbc, 0xf2, 0xbb, 0x8e, 0x74, 0xe9, 0xb0, 0xd0, 0x44, 0x83, 0x2d, 0x77, 0x84,
-	0xf2, 0x8c, 0x2f, 0xaf, 0xb2, 0x7b, 0xbf, 0xf7, 0x6f, 0xc3, 0xec, 0x66, 0xbc, 0xfe, 0x34, 0x1e,
-	0x2b, 0x51, 0x3d, 0xe8, 0x89, 0x0f, 0x00, 0x34, 0xe8, 0x6e, 0x5b, 0x84, 0x08, 0xa4, 0x64, 0xf9,
-	0x74, 0x04, 0x1b, 0xf3, 0xc9, 0xbe, 0x8e, 0xf9, 0xa8, 0x84, 0xb7, 0x43, 0x9d, 0xfe, 0x3c, 0x01,
-	0xf1, 0xd0, 0x45, 0x7c, 0x86, 0x49, 0xad, 0x49, 0xcb, 0x73, 0xd6, 0xfa, 0x78, 0x14, 0x6a, 0x48,
-	0x43, 0x2b, 0xd6, 0x11, 0x73, 0x78, 0x42, 0x3d, 0x16, 0xa5, 0xee, 0x9a, 0xa2, 0xf2, 0x35, 0xca,
-	0xd7, 0xb3, 0x68, 0x91, 0xa8, 0x53, 0xea, 0xf1, 0x5a, 0x77, 0xcd, 0x8d, 0xaf, 0x51, 0x5c, 0xc0,
-	0xd4, 0xa0, 0x73, 0x5e, 0x9e, 0x1c, 0x92, 0xbd, 0x67, 0xba, 0x0a, 0x03, 0xb5, 0x9f, 0x8b, 0x97,
-	0x00, 0x96, 0xb0, 0x2d, 0x38, 0x09, 0xf9, 0x66, 0x16, 0x2d, 0xa6, 0x2a, 0x09, 0x1d, 0x66, 0x48,
-	0x7f, 0x45, 0x30, 0x09, 0xd6, 0xe2, 0x0c, 0xe2, 0xe6, 0x92, 0xdf, 0x29, 0x51, 0x71, 0x73, 0xc9,
-	0xf5, 0x52, 0xc6, 0x87, 0x7a, 0xf9, 0xff, 0x86, 0x2b, 0x88, 0x8d, 0x95, 0x13, 0xde, 0x7a, 0x7f,
-	0x5c, 0x16, 0x2b, 0xab, 0x62, 0x63, 0xd3, 0x73, 0x88, 0x57, 0x36, 0x80, 0x98, 0x86, 0xc1, 0xa6,
-	0x2a, 0x36, 0xcd, 0xfc, 0x02, 0xa6, 0xec, 0xc7, 0x83, 0x3b, 0x62, 0xc3, 0xc4, 0xe6, 0x8e, 0xd8,
-	0x2c, 0xcb, 0x47, 0xfc, 0x98, 0xef, 0xfe, 0x04, 0x00, 0x00, 0xff, 0xff, 0x85, 0x5e, 0xeb, 0x45,
-	0x1a, 0x03, 0x00, 0x00,
+	// 655 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0x6d, 0x6f, 0xd3, 0x30,
+	0x10, 0xc7, 0x49, 0xf6, 0xc0, 0x7a, 0x59, 0xbb, 0xce, 0x03, 0x14, 0x22, 0x55, 0x54, 0xd5, 0x04,
+	0xd5, 0x10, 0x29, 0x2d, 0xda, 0x0b, 0x10, 0x6f, 0xb2, 0xb4, 0x83, 0xa1, 0x6a, 0x1d, 0xee, 0x03,
+	0xe2, 0x55, 0xe4, 0x26, 0x6e, 0x13, 0x35, 0x89, 0xad, 0xd4, 0x1d, 0xda, 0xbe, 0x09, 0x1f, 0x92,
+	0xef, 0x80, 0xec, 0xae, 0x6b, 0xd0, 0x90, 0xa8, 0x78, 0x97, 0x3b, 0xdf, 0xfd, 0xef, 0x17, 0xdf,
+	0xdf, 0x50, 0x4e, 0xa2, 0x20, 0x88, 0xe9, 0x0f, 0x92, 0x51, 0x9b, 0x67, 0x4c, 0x30, 0x04, 0xeb,
+	0x8c, 0xf5, 0x62, 0xca, 0xd8, 0x34, 0xa6, 0x0d, 0x75, 0x32, 0x5e, 0x4c, 0x1a, 0x22, 0x4a, 0xe8,
+	0x5c, 0x90, 0x84, 0x2f, 0x8b, 0xad, 0xd3, 0x69, 0x24, 0xec, 0x5b, 0xc2, 0x89, 0xed, 0xc7, 0x6c,
+	0x11, 0x34, 0x12, 0x9a, 0xf9, 0x21, 0x49, 0xc5, 0x1b, 0xc1, 0x58, 0x3c, 0x6f, 0x84, 0x34, 0xe6,
+	0x34, 0x5b, 0xb6, 0x37, 0xc4, 0x0d, 0xbf, 0x9b, 0x51, 0xfb, 0xb9, 0x07, 0xcf, 0xce, 0x7a, 0x6d,
+	0x2a, 0x48, 0x14, 0x63, 0xea, 0xb3, 0xd4, 0x8f, 0xe2, 0x88, 0x88, 0x88, 0xa5, 0xc8, 0x86, 0xc2,
+	0x24, 0x63, 0x89, 0x17, 0x10, 0x41, 0x4d, 0xad, 0xaa, 0xd5, 0x8d, 0xd6, 0xa1, 0xbd, 0xc4, 0xb0,
+	0x95, 0x42, 0x9b, 0x08, 0x8a, 0xf7, 0x64, 0x8d, 0xfc, 0x42, 0xef, 0x01, 0x44, 0x46, 0xd2, 0xb9,
+	0x27, 0xd1, 0x4c, 0x5d, 0x35, 0x58, 0xab, 0x86, 0x15, 0xb7, 0x3d, 0x58, 0x71, 0xe3, 0x82, 0xaa,
+	0x96, 0x31, 0x3a, 0x86, 0xd2, 0x2d, 0xf7, 0xe6, 0x37, 0x73, 0x41, 0x13, 0x2f, 0x25, 0x09, 0x35,
+	0xb7, 0xaa, 0x5a, 0xbd, 0x80, 0xf7, 0x6f, 0x79, 0x5f, 0x25, 0x2f, 0x49, 0x42, 0xd1, 0x57, 0xd8,
+	0xbf, 0x66, 0x0b, 0x3f, 0xa4, 0x99, 0xe7, 0xb3, 0x80, 0x9a, 0x50, 0xd5, 0xea, 0xa5, 0x96, 0x6d,
+	0xe7, 0x2e, 0xee, 0xef, 0xbf, 0x62, 0x8f, 0x96, 0x6d, 0x2e, 0x0b, 0x28, 0x36, 0xae, 0xd7, 0x01,
+	0xfa, 0x06, 0x25, 0x49, 0xeb, 0x11, 0x21, 0xb2, 0x68, 0xbc, 0x10, 0xd4, 0x2c, 0x2a, 0xee, 0xb7,
+	0x1b, 0x88, 0x4a, 0x72, 0x67, 0xd5, 0x87, 0x8b, 0x22, 0x1f, 0xa2, 0x09, 0x1c, 0xf9, 0x6c, 0x91,
+	0x0a, 0x32, 0x8e, 0xf3, 0xea, 0x25, 0xa5, 0x7e, 0xba, 0x81, 0xba, 0xbb, 0xea, 0x5e, 0x8f, 0x40,
+	0xfe, 0x83, 0x1c, 0xfa, 0x00, 0x3a, 0x6f, 0x9a, 0x3b, 0x4a, 0xf6, 0x64, 0x03, 0xd9, 0xab, 0x8c,
+	0x4d, 0xa2, 0x98, 0x62, 0x9d, 0x37, 0xad, 0x2f, 0x50, 0xfc, 0xe3, 0x1f, 0xe4, 0x06, 0x33, 0x2a,
+	0xb2, 0x9b, 0xe5, 0x06, 0xb5, 0x7f, 0x6f, 0x50, 0x55, 0xcb, 0xd8, 0xfa, 0xa5, 0x03, 0x7a, 0x88,
+	0x8c, 0x3e, 0x4a, 0xc5, 0xc9, 0x22, 0x0d, 0x3c, 0xc2, 0x23, 0x13, 0xa9, 0x85, 0x55, 0xf2, 0x98,
+	0x58, 0x9d, 0x0e, 0xa4, 0x13, 0xba, 0x6c, 0xea, 0xf0, 0x48, 0x8a, 0xca, 0x94, 0xc3, 0x23, 0x34,
+	0x84, 0xed, 0x80, 0x08, 0x62, 0x3e, 0x51, 0x24, 0xce, 0x7f, 0xdd, 0x9a, 0xad, 0xb4, 0x89, 0x2f,
+	0x8f, 0xb1, 0x92, 0x43, 0x35, 0x28, 0x0a, 0x4e, 0xbd, 0x31, 0x49, 0x67, 0x4b, 0x23, 0x1d, 0x2b,
+	0xb3, 0x19, 0x82, 0xd3, 0x33, 0x92, 0xce, 0x94, 0x31, 0x5e, 0xc1, 0xd6, 0x5c, 0x24, 0xca, 0x86,
+	0x46, 0xeb, 0x69, 0x7e, 0x72, 0x5f, 0x10, 0x41, 0x13, 0x9a, 0x0a, 0x2c, 0x2b, 0x50, 0x05, 0x20,
+	0x92, 0xae, 0x55, 0xbb, 0x31, 0x5f, 0x56, 0xb5, 0xfa, 0x0e, 0x2e, 0xc8, 0x8c, 0x42, 0xb1, 0x46,
+	0x60, 0xe4, 0x00, 0x50, 0x09, 0xf4, 0x59, 0x53, 0xdd, 0x6c, 0x01, 0xeb, 0xb3, 0xa6, 0x8a, 0x5b,
+	0xea, 0xad, 0xc8, 0xb8, 0xb5, 0xf1, 0x58, 0xab, 0x02, 0x8f, 0xef, 0x56, 0x89, 0x10, 0x6c, 0xcb,
+	0xe7, 0x71, 0xa7, 0xaa, 0xbe, 0x6b, 0x2e, 0x18, 0x39, 0xcf, 0xa3, 0x0a, 0x3c, 0x1f, 0xf5, 0x86,
+	0xee, 0xe7, 0x0e, 0xf6, 0xdc, 0x5e, 0xbb, 0xe3, 0x0d, 0x2f, 0xfb, 0x57, 0x1d, 0xf7, 0xe2, 0xfc,
+	0xc2, 0xed, 0xb4, 0xcb, 0x8f, 0x10, 0xc0, 0xee, 0xc8, 0xf5, 0xbe, 0x77, 0xfa, 0x65, 0x0d, 0x15,
+	0x60, 0x67, 0xe4, 0x7a, 0x97, 0xbd, 0xb2, 0x5e, 0x7b, 0x0d, 0x85, 0xfb, 0xa9, 0x92, 0x34, 0xbc,
+	0x27, 0x0f, 0x15, 0x79, 0x78, 0x4f, 0x1e, 0xb6, 0x4e, 0x3e, 0xc1, 0xe1, 0x83, 0x5d, 0xa2, 0x23,
+	0x38, 0xc0, 0x03, 0x67, 0x3d, 0x4e, 0x4d, 0xdb, 0x87, 0x3d, 0x99, 0x3c, 0x1f, 0x76, 0xbb, 0x65,
+	0x0d, 0x1d, 0x80, 0x21, 0xa3, 0x2b, 0x07, 0x0f, 0x2e, 0x9c, 0x6e, 0x59, 0x1f, 0xef, 0x2a, 0xa3,
+	0xbd, 0xfb, 0x1d, 0x00, 0x00, 0xff, 0xff, 0xee, 0xb2, 0x78, 0x4e, 0x10, 0x05, 0x00, 0x00,
 }
