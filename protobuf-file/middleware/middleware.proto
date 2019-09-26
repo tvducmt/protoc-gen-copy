@@ -8,7 +8,7 @@ import "git.zapa.cloud/merchant-tools/helper/proto/type.proto";
 
 
 message BODetailReconciliation {
-    // google.type.Date from_date               = 1;
+    google.type.Date from_date               = 1;
 // //     // // @inject_tag: es:"zpSystemName"
 //     // string zp_system_name = 9;
 
@@ -31,17 +31,17 @@ message BODetailReconciliation {
     message CountableAttribute {
         // @inject_tag: es:"merchantRefundAmount"
         // int64 merchant_refund_amount = 19;
-        // Data data = 20;
+        Data data = 20;
         
-        // message Data {
-        //     string k1 =1;
-        //     string k2=2;
-        //     Hello hello=3;
-        //     Hi hi =4;
-        // }
-        // message Hi{
-        //     int32 hk =1;
-        // }
+        message Data {
+            string k1 =1;
+            string k2=2;
+            Hello hello=3;
+            Hi hi =4;
+        }
+        message Hi{
+            int32 hk =1;
+        }
         // @inject_tag: es:"refundPercentFeeNotVat"
         // double return_percent_fee_not_vat = 28;
         // @inject_tag: es:"tpeBankCode"

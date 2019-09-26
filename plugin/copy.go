@@ -166,59 +166,67 @@ func (c *copy) getFieldsOfMsg(msg *descriptor.DescriptorProto, path string) []in
 	return args
 }
 
-func (c *copy) generateStruct(toArg []interface{}, path string, checkInner bool, checkOuter bool, fromArgString []interface{}) []ObjQueue {
-	args := []ObjQueue{}
-	for _, v := range toArg {
-		if k, ok := v.(ObjQueue); ok {
-			result := ExistInFromArr(k.Val, fromArgString)
-			if result.Name != "" {
-				// glog.Infoln("result.Name", result.Name)
-				if checkInner {
-					c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
-					c.P(`	if h == nil {`)
-					c.P(`		return reflect.Zero(reflect.TypeOf(reflect.`, strings.Title(k.Type), `)).Interface().(`, k.Type, `)`)
-					c.P(`	}`)
-					c.P(`	return h.`, k.Name)
-					c.P(`}(from.`, TrimFirstRune(result.Val), `),`)
+func (c *copy) generateStruct(v interface{}, path string, checkInner bool, checkOuter bool, fromArgString []interface{}) {
+	// args := []ObjQueue{}
 
-				} else {
-					c.P(`if !isNil(from`, k.Val, `){`)
-					c.P(path+k.Name, `= from`, k.Val)
-					c.P(`}`)
-				}
-			}
-			// args = append(args, ObjQueue{Name: k.Name, Type: k.Type})
-		} else if mp, oki := v.(map[ObjQueue][]interface{}); oki {
+	if k, ok := v.(ObjQueue); ok {
+		result := ExistInFromArr(k.Val, fromArgString)
+		if result.Name != "" {
+			glog.Infoln("result.Name", result.Name)
+			if checkInner {
+				c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
+				c.P(`	if h == nil {`)
+				c.P(`		return reflect.Zero(reflect.TypeOf(reflect.`, strings.Title(k.Type), `)).Interface().(`, k.Type, `)`)
+				c.P(`	}`)
+				c.P(`	return h.`, k.Name)
+				c.P(`}(from.`, TrimFirstRune(result.Val), `),`)
 
-			//
-			for key, mp1Val := range mp {
-				if checkInner {
-					path = key.Name
-					c.P(path, `: &`, key.Type, `{`)
-				} else {
-					path = path + key.Name
-					c.P(`if !isNil(from`, key.Val, `){`)
-					c.P(path, `= &`, (key.Type), `{`)
-
-				}
-
-				checkInner = true
-				c.generateStruct(mp1Val, path+".", checkInner, false, fromArgString)
-
-				if checkOuter {
-					c.P(`}`)
-					c.P(`}`)
-					checkOuter = false
-				} else {
-					c.P(`},`)
-				}
-				checkInner = false
-				checkOuter = true
-				path = "to."
+			} else {
+				c.P(`if !isNil(from`, k.Val, `){`)
+				c.P(path+k.Name, `= from`, k.Val)
+				c.P(`}`)
 			}
 		}
+		// args = append(args, ObjQueue{Name: k.Name, Type: k.Type})
+	} else if mp, oki := v.(map[ObjQueue][]interface{}); oki {
+		//
+		for key, mp1Val := range mp {
+			// if key.Name == "TransTime" {
+			// 	checkInner = false
+			// 	checkOuter = true
+			// 	glog.Infoln("toArddfddfg", v, checkInner, checkOuter)
+			// }
+			if checkInner {
+				path = key.Name
+				c.P(path, `: &`, key.Type, `{`)
+			} else {
+				path = path + key.Name
+				c.P(`if !isNil(from`, key.Val, `){`)
+				c.P(path, `= &`, (key.Type), `{`)
+
+			}
+
+			checkInner = true
+			for _, h := range mp1Val {
+				c.generateStruct(h, path+".", checkInner, false, fromArgString)
+			}
+			if checkOuter {
+				c.P(`}`)
+				c.P(`}`)
+				// checkOuter = false
+			} else {
+				c.P(`},`)
+			}
+			// checkInner = false
+			checkOuter = true
+			path = "to."
+		}
+
 	}
-	return args
+
+	// checkInner = false
+	// checkOuter = true
+	// return args
 }
 
 func (c *copy) msgToString(fromArg []interface{}) []interface{} {
@@ -268,13 +276,12 @@ func (c *copy) generateClientMethod(servName, fullServName, serviceDescVar strin
 	glog.Infoln()
 	glog.Infoln()
 	glog.Infoln("fromArgString", fromArgString)
-
-	c.generateStruct(toArg, "to.", false, true, fromArgString)
-
+	for _, v := range toArg {
+		c.generateStruct(v, "to.", false, true, fromArgString)
+	}
 	c.P("return  nil")
 	c.P("}")
 	c.P()
-	return
 }
 
 // generateService generates all the code for the named service.
