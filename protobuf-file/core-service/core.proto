@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package core;
+package core_service;
 
 import "git.zapa.cloud/merchant-tools/helper/proto/type.proto";
 import "google/protobuf/timestamp.proto";

@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	contextPkgPath = "context"
-	reflectPkgPath = "reflect"
+	contextPkgPath   = "context"
+	reflectPkgPath   = "reflect"
+	timeStampPkgPath = "github.com/golang/protobuf/ptypes/timestamp"
 )
 
 type copy struct {
@@ -34,8 +35,9 @@ func (c *copy) Name() string {
 }
 
 var (
-	contextPkg string
-	reflectPkg string
+	contextPkg   string
+	reflectPkg   string
+	timeStampPkg string
 )
 
 func (c *copy) Init(g *generator.Generator) {
@@ -122,8 +124,8 @@ func getTypeOfFied(field *descriptor.FieldDescriptorProto) string {
 	return "PrimitiveType"
 }
 func (c *copy) getNestedType(input string) (string, bool) {
-	// glog.Infoln("input", input)
 	if input == "google.protobuf.Timestamp" {
+		timeStampPkg = string(c.Generator.AddImport(timeStampPkgPath))
 		return "timestamp.Timestamp", false
 	}
 	if input == "google.type.Date" {
@@ -145,16 +147,11 @@ func (c *copy) getFieldsOfMsg(msg *descriptor.DescriptorProto, path string) []in
 	for _, v := range msg.Field {
 
 		if v.IsMessage() {
-			// path = ""
 			mpMsg := make(map[ObjQueue][]interface{})
 			msg1 := c.ObjectNamed(v.GetTypeName()).(*generator.Descriptor).DescriptorProto
 			path = path + "." + strings.Title(v.GetJsonName())
 			x := c.getFieldsOfMsg(msg1, path)
 			typeNested, _ := c.getNestedType(TrimFirstRune(v.GetTypeName()))
-			// if ok {
-			// 	path =
-			// }
-			// glog.Infoln("typeNested", typeNested)
 			mpMsg[ObjQueue{Name: strings.Title(v.GetJsonName()), Type: typeNested, Val: path}] = x
 			args = append(args, mpMsg)
 			path = ""
@@ -167,12 +164,10 @@ func (c *copy) getFieldsOfMsg(msg *descriptor.DescriptorProto, path string) []in
 }
 
 func (c *copy) generateStruct(v interface{}, path string, checkInner bool, checkOuter bool, fromArgString []interface{}) {
-	// args := []ObjQueue{}
 
 	if k, ok := v.(ObjQueue); ok {
 		result := ExistInFromArr(k.Val, fromArgString)
 		if result.Name != "" {
-			glog.Infoln("result.Name", result.Name)
 			if checkInner {
 				c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
 				c.P(`	if h == nil {`)
@@ -187,15 +182,10 @@ func (c *copy) generateStruct(v interface{}, path string, checkInner bool, check
 				c.P(`}`)
 			}
 		}
-		// args = append(args, ObjQueue{Name: k.Name, Type: k.Type})
+
 	} else if mp, oki := v.(map[ObjQueue][]interface{}); oki {
 		//
 		for key, mp1Val := range mp {
-			// if key.Name == "TransTime" {
-			// 	checkInner = false
-			// 	checkOuter = true
-			// 	glog.Infoln("toArddfddfg", v, checkInner, checkOuter)
-			// }
 			if checkInner {
 				path = key.Name
 				c.P(path, `: &`, key.Type, `{`)
@@ -213,20 +203,15 @@ func (c *copy) generateStruct(v interface{}, path string, checkInner bool, check
 			if checkOuter {
 				c.P(`}`)
 				c.P(`}`)
-				// checkOuter = false
 			} else {
 				c.P(`},`)
 			}
-			// checkInner = false
 			checkOuter = true
 			path = "to."
 		}
 
 	}
 
-	// checkInner = false
-	// checkOuter = true
-	// return args
 }
 
 func (c *copy) msgToString(fromArg []interface{}) []interface{} {

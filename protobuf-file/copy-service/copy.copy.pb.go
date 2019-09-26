@@ -4,17 +4,16 @@
 package copy
 
 import (
-	context "context"
 	fmt "fmt"
 	math "math"
-	reflect "reflect"
-
-	git_zapa_cloud_merchant_tools_helper_proto "git.zapa.cloud/merchant-tools/helper/proto"
 	proto "github.com/gogo/protobuf/proto"
-	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
-	core_service "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
 	middleware "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware"
+	_ "google.golang.org/grpc"
+	context "context"
+	reflect "reflect"
+	timestamp "github.com/golang/protobuf/ptypes/timestamp"
+	core_service "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
+	git_zapa_cloud_merchant_tools_helper_proto "git.zapa.cloud/merchant-tools/helper/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -64,8 +63,8 @@ func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation
 		}
 	}
 	if !isNil(from.CountableAttribute) {
-		to.CountableAttribute = &core.BODetailReconciliation_CountableAttribute{
-			Data: &core.BODetailReconciliation_CountableAttribute_Data{
+		to.CountableAttribute = &core_service.BODetailReconciliation_CountableAttribute{
+			Data: &core_service.BODetailReconciliation_CountableAttribute_Data{
 				K1: func(h *middleware.BODetailReconciliation_CountableAttribute_Data) string {
 					if h == nil {
 						return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
@@ -78,7 +77,7 @@ func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation
 					}
 					return h.K2
 				}(from.CountableAttribute.Data),
-				Hello: &core.Hello{
+				Hello: &core_service.Hello{
 					H1: func(h *middleware.Hello) string {
 						if h == nil {
 							return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
@@ -92,7 +91,7 @@ func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation
 						return h.H2
 					}(from.CountableAttribute.Data.Hello),
 				},
-				Hi: &core.BODetailReconciliation_CountableAttribute_Hi{},
+				Hi: &core_service.BODetailReconciliation_CountableAttribute_Hi{},
 			},
 			TpeBankCode: func(h *middleware.BODetailReconciliation_CountableAttribute) string {
 				if h == nil {
@@ -100,7 +99,7 @@ func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation
 				}
 				return h.TpeBankCode
 			}(from.CountableAttribute),
-			Hello: &core.Hello{},
+			Hello: &core_service.Hello{},
 			ItemCount: func(h *middleware.BODetailReconciliation_CountableAttribute) int32 {
 				if h == nil {
 					return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
