@@ -8,7 +8,7 @@ import "git.zapa.cloud/merchant-tools/helper/proto/type.proto";
 
 
 message BODetailReconciliation {
-    google.type.Date from_date               = 1;
+    // google.type.Date from_date               = 1;
 // //     // // @inject_tag: es:"zpSystemName"
 //     // string zp_system_name = 9;
 
@@ -22,7 +22,7 @@ message BODetailReconciliation {
 
   
 // //     // // @inject_tag: es:"transDate"
-    google.protobuf.Timestamp trans_time = 24;
+    // 
 
 // //     // message TimeAttribute {
 // //     //     google.protobuf.Timestamp retry_time = 1;
@@ -30,7 +30,7 @@ message BODetailReconciliation {
     CountableAttribute countable_attribute = 14;
     message CountableAttribute {
         // @inject_tag: es:"merchantRefundAmount"
-        int64 merchant_refund_amount = 19;
+        // int64 merchant_refund_amount = 19;
         // Data data = 20;
         
         // message Data {
@@ -43,7 +43,7 @@ message BODetailReconciliation {
         //     int32 hk =1;
         // }
         // @inject_tag: es:"refundPercentFeeNotVat"
-        double return_percent_fee_not_vat = 28;
+        // double return_percent_fee_not_vat = 28;
         // @inject_tag: es:"tpeBankCode"
         string tpe_bank_code = 36;
         Hello hello=3;
@@ -51,14 +51,14 @@ message BODetailReconciliation {
         int32 item_count = 38;
         
     }
-    Profile ductran = 5;
-    message Profile{
-        string Name =1;
-    }
-    Profile ductran1 = 6;
-    message Profile1{
-        string Name =1;
-    }
+    // Profile ductran = 5;
+    // message Profile{
+    //     string Name =1;
+    // }
+    // Profile ductran1 = 6;
+    // message Profile1{
+    //     string Name =1;
+    // }
 //     // message StatusAttribute {
 //     //     ZalopayUserChargedStatus zalopay_user_charged_status = 10;
 //     //     ZalopayStatus zalopay_status = 11;
@@ -79,6 +79,7 @@ message BODetailReconciliation {
 //         VC_YES   = 1;
 //         VC_NO    = 2;
 //     }
+google.protobuf.Timestamp trans_time = 24;
 }
 
 // enum RefundTransLogApi {
