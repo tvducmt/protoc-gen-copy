@@ -81,12 +81,12 @@ func (c *copy) Generate(file *generator.FileDescriptor) {
 }
 
 // // generateClientSignature returns the client-side signature for a method.
-func (c *copy) generateClientSignature(servName string, method *pb.MethodDescriptorProto, typeMethod bool) string {
+func (c *copy) generateClientSignature(servName string, method *pb.MethodDescriptorProto, isCpSlice bool) string {
 	origMethName := method.GetName()
 	methName := generator.CamelCase(origMethName)
 	var reqArg string   //:= "from *" + c.typeName(method.GetInputType())
 	var respName string //:= "to *" + c.typeName(method.GetOutputType())
-	if typeMethod {
+	if isCpSlice {
 		methName = methName + "Slice"
 		reqArg = "from []*" + c.typeName(method.GetInputType())
 		respName = "to *[]*" + c.typeName(method.GetOutputType())

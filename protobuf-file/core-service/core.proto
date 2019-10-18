@@ -6,19 +6,19 @@ import "git.zapa.cloud/merchant-tools/helper/proto/type.proto";
 import "google/protobuf/timestamp.proto";
 
 message BODetailReconciliation {
-    google.type.Date from_date               = 1;
-    google.protobuf.Timestamp trans_time     =  2;
-    string zp_system_name                   = 3;
+    // google.type.Date from_date               = 1;
+    // google.protobuf.Timestamp trans_time     =  2;
+    // string zp_system_name                   = 3;
 
-    VoucherCode voucher_code = 10;
+    // VoucherCode voucher_code = 10;
 
-    TimeAttribute time_attribute = 13;
+    // TimeAttribute time_attribute = 13;
 
    
 
-    message TimeAttribute {
-        google.protobuf.Timestamp retry_time = 1;
-    }
+    // message TimeAttribute {
+    //     google.protobuf.Timestamp retry_time = 1;
+    // }
     CountableAttribute countable_attribute = 14;
     message CountableAttribute {
         RefundTransLogApi refund_api = 18;
@@ -34,15 +34,15 @@ message BODetailReconciliation {
         int32 item_count = 38;
         
     }
-    Profile p1 = 5;
-    message Profile{
-        string Name =1;
-    }
-    enum VoucherCode{
-        VOUCHER_CODE_UNSPECIFICED    = 0;
-        VC_YES   = 1;
-        VC_NO    = 2;
-    }
+    // Profile p1 = 5;
+    // message Profile{
+    //     string Name =1;
+    // }
+    // enum VoucherCode{
+    //     VOUCHER_CODE_UNSPECIFICED    = 0;
+    //     VC_YES   = 1;
+    //     VC_NO    = 2;
+    // }
 
 }
 
