@@ -2,28 +2,22 @@ syntax = "proto3";
 
 package core_service;
 
-import "git.zapa.cloud/merchant-tools/helper/proto/type.proto";
+// import "git.zapa.cloud/merchant-tools/helper/proto/type.proto";
 import "google/protobuf/timestamp.proto";
 
 message BODetailReconciliation {
     // google.type.Date from_date               = 1;
-    // google.protobuf.Timestamp trans_time     =  2;
-    // string zp_system_name                   = 3;
-
-    // VoucherCode voucher_code = 10;
-
-    // TimeAttribute time_attribute = 13;
-
-   
-
-    // message TimeAttribute {
-    //     google.protobuf.Timestamp retry_time = 1;
-    // }
+    google.protobuf.Timestamp trans_time     =  2;
+    string zp_system_name                   = 3;
+    VoucherCode voucher_code = 10;
+    TimeAttribute time_attribute = 13;
+    message TimeAttribute {
+        google.protobuf.Timestamp retry_time = 1;
+    }
     CountableAttribute countable_attribute = 14;
     message CountableAttribute {
-        RefundTransLogApi refund_api = 18;
+        RefundApi refund_api = 18;
         Transaction data = 20;
-        
         message Transaction {
             string k1 =1;
             string k2=2;
@@ -32,18 +26,16 @@ message BODetailReconciliation {
         string tpe_bank_code = 36;
         Statement stm=3;
         int32 item_count = 38;
-        
     }
-    // Profile p1 = 5;
-    // message Profile{
-    //     string Name =1;
-    // }
-    // enum VoucherCode{
-    //     VOUCHER_CODE_UNSPECIFICED    = 0;
-    //     VC_YES   = 1;
-    //     VC_NO    = 2;
-    // }
-
+    Profile p1 = 5;
+    message Profile{
+        string Name =1;
+    }
+    enum VoucherCode{
+        VOUCHER_CODE_UNSPECIFICED    = 0;
+        VC_YES   = 1;
+        VC_NO    = 2;
+    }
 }
 
 enum RefundTransLogApi {
@@ -54,4 +46,13 @@ enum RefundTransLogApi {
 message Statement {
     string h1 =1;
     string h2 =2;
+    
+}
+message Statement1 {
+    string h1 =1;
+    string h2 =2;
+    
+}
+message RefundApi {
+    Statement1 stm1=3; 
 }

@@ -155,7 +155,9 @@ func (c *copy) getFieldsOfMsg(msg *descriptor.DescriptorProto, path string) []in
 			typeNested, _ := c.getNestedType(TrimFirstRune(v.GetTypeName()))
 			mpMsg[ObjQueue{Name: strings.Title(v.GetJsonName()), Type: typeNested, Val: path}] = x
 			args = append(args, mpMsg)
-			path = ""
+			last := path[strings.LastIndex(path, ".")+1:]
+			// glog.Infoln("dafadfdsf: ", path[:(len(path)-len(last)-1)])
+			path = path[:(len(path) - len(last) - 1)]
 		} else if v.IsEnum() {
 			// glog.Infoln("genumfdgfd", v.GetTypeName())
 			// path = path + "." + strings.Title(v.GetJsonName())
@@ -192,6 +194,9 @@ func (c *copy) generateStruct(v interface{}, path string, checkInner bool, check
 			}
 		} else {
 			result := ExistInFromArr(k.Val, fromArgString)
+			if k.Val == ".CountableAttribute.Stm.H1" {
+				glog.Infoln(".CountableAttribute.Stm.H1", result.Name)
+			}
 			if result.Name != "" {
 				if checkInner {
 					c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
@@ -212,6 +217,9 @@ func (c *copy) generateStruct(v interface{}, path string, checkInner bool, check
 	} else if mp, oki := v.(map[ObjQueue][]interface{}); oki {
 		//
 		for key, mp1Val := range mp {
+			// if key.Name == "Stm" {
+			// 	glog.Infoln("key.Name :", mp1Val[0])
+			// }
 			if checkInner {
 				path = key.Name
 				c.P(path, `: &`, key.Type, `{`)
@@ -224,6 +232,9 @@ func (c *copy) generateStruct(v interface{}, path string, checkInner bool, check
 
 			checkInner = true
 			for _, h := range mp1Val {
+				// if key.Name == "Stm" {
+				// 	glog.Infoln("key.h :", h)
+				// }
 				c.generateStruct(h, path+".", checkInner, false, fromArgString)
 			}
 			if checkOuter {

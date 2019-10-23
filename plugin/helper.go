@@ -19,8 +19,15 @@ func TrimFirstRune(s string) string {
 func checkIntoArrString(input string, fromArg []interface{}) ObjQueue {
 	// duyet cac phan tu don
 	for i := 1; i < len(fromArg); i++ {
-		if _, ok := fromArg[i].(string); ok {
-			if input == fromArg[i] {
+		if input == ".CountableAttribute.Stm.H1" {
+			glog.Infoln(`fromArg[`, i, `] `, fromArg[i])
+			glog.Infoln("input ", input)
+		}
+		if val, ok := fromArg[i].(string); ok {
+			if input == val {
+				if input == ".CountableAttribute.Stm.H1" {
+					glog.Infoln("fromArg[i]dwwdwwddw ", fromArg[i])
+				}
 				if val, ok := fromArg[0].(ObjQueue); ok {
 					// glog.Infoln("input == v", val)
 					return val
@@ -43,10 +50,13 @@ func checkIntoArrString(input string, fromArg []interface{}) ObjQueue {
 		for i := 0; i < s.Len(); i++ {
 			ret[i] = s.Index(i).Interface()
 		}
-		if input == ".ItemCount" {
-			glog.Infoln("len(ret)", ret, "  len: ", len(ret))
+		// if input == ".CountableAttribute.Stm.H1" {
+		// 	glog.Infoln("len(ret)", ret, "  len: ", len(ret))
+		// }
+		rls := checkIntoArrString(input, ret)
+		if rls.Name != "" {
+			return rls
 		}
-		return checkIntoArrString(input, ret)
 
 		// }
 	}
@@ -55,12 +65,12 @@ func checkIntoArrString(input string, fromArg []interface{}) ObjQueue {
 
 // ExistInFromArr ...
 func ExistInFromArr(input string, fromArg []interface{}) ObjQueue {
-	// if input == ".ItemCount" {
-	// 	glog.Infoln("lenfromArg", len(fromArg))
-	// }
-	for _, v := range fromArg {
 
-		// glog.Infoln("input", input)
+	for _, v := range fromArg {
+		// if input == ".CountableAttribute.Stm.H1" {
+		// 	glog.Infoln("input", input)
+		// }
+
 		if _, ok := v.(string); ok {
 			if input == v {
 				// glog.Infoln("input == v", input, v)
@@ -81,8 +91,10 @@ func ExistInFromArr(input string, fromArg []interface{}) ObjQueue {
 			}
 			result := checkIntoArrString(input, ret)
 			if result.Name == "" {
-				// if input == ".ItemCount" {
-				// 	glog.Infoln("dsfgfsgsfgsfgsfgfsgfsg")
+				// if input == ".CountableAttribute.Stm.H1" {
+				// 	// glog.Infoln("dsfgfsgsfgsfgsfgfsgfsg: ", ret[0])
+				// 	// glog.Infoln("dsfgfsgsfgsfgsfgfsgfsg: ", ret[1])
+				// 	glog.Infoln("dsfgfsgsfgsfgsfgfsgfsg: ", ret[2])
 				// }
 				// glog.Infoln("dsfgfsgsfgsfgsfgfsgfsg")
 				continue
