@@ -4,12 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	pb "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	"github.com/gogo/protobuf/protoc-gen-gogo/generator"
-	"github.com/golang/glog"
-	cpier "github.com/tvducmt/protoc-gen-copy/protobuf"
 )
 
 const (
@@ -21,8 +18,7 @@ const (
 type copy struct {
 	*generator.Generator
 	generator.PluginImports
-	protoPkg   generator.Single
-	stringsPkg generator.Single
+	protoPkg generator.Single
 }
 
 // NewCopy ...
@@ -55,9 +51,7 @@ func (c *copy) typeName(str string) string {
 
 func (c *copy) Generate(file *generator.FileDescriptor) {
 	c.PluginImports = generator.NewPluginImports(c.Generator)
-	c.stringsPkg = c.NewImport("strings")
 	c.protoPkg = c.NewImport("git.zapa.cloud/merchant-tools/helper/proto")
-	// c.reflectPkg = c.NewImport("reflect")
 	contextPkg = string(c.Generator.AddImport(contextPkgPath))
 	reflectPkg = string(c.Generator.AddImport(reflectPkgPath))
 	c.P("// Reference imports to suppress errors if they are not otherwise used.")
@@ -80,12 +74,11 @@ func (c *copy) Generate(file *generator.FileDescriptor) {
 	}
 }
 
-// // generateClientSignature returns the client-side signature for a method.
 func (c *copy) generateClientSignature(servName string, method *pb.MethodDescriptorProto, isCpSlice bool) string {
 	origMethName := method.GetName()
 	methName := generator.CamelCase(origMethName)
-	var reqArg string   //:= "from *" + c.typeName(method.GetInputType())
-	var respName string //:= "to *" + c.typeName(method.GetOutputType())
+	var reqArg string
+	var respName string
 	if isCpSlice {
 		methName = methName + "Slice"
 		reqArg = "from []*" + c.typeName(method.GetInputType())
@@ -143,24 +136,20 @@ func (c *copy) getNestedType(input string) (string, bool) {
 	}
 	return input, false
 }
-func (c *copy) getFieldsOfMsg(msg *descriptor.DescriptorProto, path string) []interface{} {
+func (c *copy) covertFieldsToMap(msg *descriptor.DescriptorProto, path string) []interface{} {
 	args := []interface{}{}
 	for _, v := range msg.Field {
-
 		if v.IsMessage() {
 			mpMsg := make(map[ObjQueue][]interface{})
 			msg1 := c.ObjectNamed(v.GetTypeName()).(*generator.Descriptor).DescriptorProto
 			path = path + "." + strings.Title(v.GetJsonName())
-			x := c.getFieldsOfMsg(msg1, path)
+			x := c.covertFieldsToMap(msg1, path)
 			typeNested, _ := c.getNestedType(TrimFirstRune(v.GetTypeName()))
 			mpMsg[ObjQueue{Name: strings.Title(v.GetJsonName()), Type: typeNested, Val: path}] = x
 			args = append(args, mpMsg)
 			last := path[strings.LastIndex(path, ".")+1:]
-			// glog.Infoln("dafadfdsf: ", path[:(len(path)-len(last)-1)])
 			path = path[:(len(path) - len(last) - 1)]
 		} else if v.IsEnum() {
-			// glog.Infoln("genumfdgfd", v.GetTypeName())
-			// path = path + "." + strings.Title(v.GetJsonName())
 			typeNested, _ := c.getNestedType(TrimFirstRune(v.GetTypeName()))
 			args = append(args, ObjQueue{Name: strings.Title(v.GetJsonName()), Type: typeNested, Val: path + "." + strings.Title(v.GetJsonName()), IsEnum: true})
 		} else {
@@ -171,13 +160,12 @@ func (c *copy) getFieldsOfMsg(msg *descriptor.DescriptorProto, path string) []in
 	return args
 }
 
-func (c *copy) generateStruct(v interface{}, path string, checkInner bool, checkOuter bool, fromArgString []interface{}) {
+func (c *copy) generateCpFunc(v interface{}, path string, checkInner bool, checkOuter bool, fromArgString []interface{}) {
 
 	if k, ok := v.(ObjQueue); ok {
 		if k.IsEnum {
-			result := ExistInFromArr(k.Val, fromArgString)
+			result := ExistInFromArrString(k.Val, fromArgString)
 			if result.Name != "" {
-				glog.Infoln("into herre", result.Name)
 				if checkInner {
 					c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
 					c.P(`	if h == nil {`)
@@ -193,10 +181,7 @@ func (c *copy) generateStruct(v interface{}, path string, checkInner bool, check
 				}
 			}
 		} else {
-			result := ExistInFromArr(k.Val, fromArgString)
-			if k.Val == ".CountableAttribute.Stm.H1" {
-				glog.Infoln(".CountableAttribute.Stm.H1", result.Name)
-			}
+			result := ExistInFromArrString(k.Val, fromArgString)
 			if result.Name != "" {
 				if checkInner {
 					c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
@@ -215,11 +200,7 @@ func (c *copy) generateStruct(v interface{}, path string, checkInner bool, check
 		}
 
 	} else if mp, oki := v.(map[ObjQueue][]interface{}); oki {
-		//
 		for key, mp1Val := range mp {
-			// if key.Name == "Stm" {
-			// 	glog.Infoln("key.Name :", mp1Val[0])
-			// }
 			if checkInner {
 				path = key.Name
 				c.P(path, `: &`, key.Type, `{`)
@@ -232,10 +213,7 @@ func (c *copy) generateStruct(v interface{}, path string, checkInner bool, check
 
 			checkInner = true
 			for _, h := range mp1Val {
-				// if key.Name == "Stm" {
-				// 	glog.Infoln("key.h :", h)
-				// }
-				c.generateStruct(h, path+".", checkInner, false, fromArgString)
+				c.generateCpFunc(h, path+".", checkInner, false, fromArgString)
 			}
 			if checkOuter {
 				c.P(`}`)
@@ -251,64 +229,44 @@ func (c *copy) generateStruct(v interface{}, path string, checkInner bool, check
 
 }
 
-func (c *copy) msgToString(fromArg []interface{}) []interface{} {
+func (c *copy) covertMapToArrString(fromArg []interface{}) []interface{} {
 	args := []interface{}{}
-	// args = append(args, k.Val)
 	for _, v := range fromArg {
 		if k, ok := v.(ObjQueue); ok {
-			// if !k.IsEnum {
 			args = append(args, k.Val)
-			// } else {
-			// 	valMaping := []interface{}{
-			// 		k.Val,
-			// 	}
-			// 	glog.Infoln("valMaping", valMaping)
-			// 	valMaping = append([]interface{}{v}, valMaping...)
-			// 	args = append(args, valMaping)
-			// }
-
 		} else if mp, oki := v.(map[ObjQueue][]interface{}); oki {
 			for Key, mp1Val := range mp {
-				valMaping := c.msgToString(mp1Val)
+				valMaping := c.covertMapToArrString(mp1Val)
 				valMaping = append([]interface{}{Key}, valMaping...)
-				// for _, v := range valMaping {
 				args = append(args, valMaping)
-				// }
 			}
 		}
 	}
 	return args
 }
 func (c *copy) generateClientMethod(servName, fullServName, serviceDescVar string, method *pb.MethodDescriptorProto) {
-	// outType := c.typeName(method.GetOutputType())
-	// glog.Infoln("outType", outType)
-	// c.P("func (c *", unexport(servName), ") ", c.generateClientSignature(servName, method, true), "{")
+	outType := c.typeName(method.GetOutputType())
+	c.P("func (c *", unexport(servName), ") ", c.generateClientSignature(servName, method, true), "{")
 
-	// c.P(`for _, v := range from {`)
-	// c.P(`resp := &`, outType, `{}`)
-	// c.P(`c.ListCITransactionsRequest(v, resp)`)
-	// c.P(`*to = append(*to, resp)`)
-	// c.P(`}`)
+	c.P(`for _, v := range from {`)
+	c.P(`resp := &`, outType, `{}`)
+	c.P(`c.ListCITransactionsRequest(v, resp)`)
+	c.P(`*to = append(*to, resp)`)
+	c.P(`}`)
 
-	// c.P("return  nil")
-	// c.P("}")
+	c.P("return  nil")
+	c.P("}")
 
 	c.P("func (c *", unexport(servName), ") ", c.generateClientSignature(servName, method, false), "{")
 
 	msgInput := c.ObjectNamed(method.GetInputType()).(*generator.Descriptor).DescriptorProto
 	msgOutput := c.ObjectNamed(method.GetOutputType()).(*generator.Descriptor).DescriptorProto
-	fromArg := c.getFieldsOfMsg(msgInput, "")
-	toArg := c.getFieldsOfMsg(msgOutput, "")
+	fromMap := c.covertFieldsToMap(msgInput, "")
+	toMap := c.covertFieldsToMap(msgOutput, "")
 
-	fromArgString := c.msgToString(fromArg)
-	glog.Infoln()
-	glog.Infoln()
-	glog.Infoln("toArg", toArg)
-	glog.Infoln()
-	glog.Infoln()
-	glog.Infoln("fromArgString", fromArgString)
-	for _, v := range toArg {
-		c.generateStruct(v, "to.", false, true, fromArgString)
+	fromArrString := c.covertMapToArrString(fromMap)
+	for _, v := range toMap {
+		c.generateCpFunc(v, "to.", false, true, fromArrString)
 	}
 	c.P("return  nil")
 	c.P("}")
@@ -337,27 +295,7 @@ func (c *copy) generateService(file *generator.FileDescriptor, service *pb.Servi
 	serviceDescVar := "_" + servName + "_serviceDesc"
 
 	for _, method := range service.Method {
-
 		c.generateClientMethod(servName, fullServName, serviceDescVar, method)
 	}
 
-}
-
-func contains(s []ObjQueue, e string) bool {
-	for _, k := range s {
-		if k.Name == e {
-			return true
-		}
-	}
-	return false
-}
-
-func (c *copy) getFieldCpIfAny(field *descriptor.MethodDescriptorProto) *cpier.CpRule {
-	if field.Options != nil {
-		v, err := proto.GetExtension(field.Options, cpier.E_Cp)
-		if err == nil && v.(*cpier.CpRule) != nil {
-			return (v.(*cpier.CpRule))
-		}
-	}
-	return nil
 }

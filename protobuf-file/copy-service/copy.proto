@@ -9,7 +9,5 @@ import "google.golang.org/grpc/metadata";
 
 
 service Copy {
-    rpc ListCITransactionsRequest(middleware.BODetailReconciliation) returns (core_service.BODetailReconciliation) {
-
-    }
+    rpc ListCITransactionsRequest(middleware.BODetailReconciliation) returns (core_service.BODetailReconciliation) {}
 }

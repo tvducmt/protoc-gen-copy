@@ -27,10 +27,10 @@ message BODetailReconciliation {
         Statement stm=3;
         int32 item_count = 38;
     }
-    Profile p1 = 5;
-    message Profile{
-        string Name =1;
-    }
+    // Profile p1 = 5;
+    // message Profile{
+    //     string Name =1;
+    // }
     enum VoucherCode{
         VOUCHER_CODE_UNSPECIFICED    = 0;
         VC_YES   = 1;

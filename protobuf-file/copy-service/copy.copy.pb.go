@@ -7,12 +7,12 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "github.com/gogo/protobuf/proto"
-	timestamp "github.com/golang/protobuf/ptypes/timestamp"
+	context "context"
 	core_service "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
 	middleware "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware"
 	_ "google.golang.org/grpc"
-	context "context"
 	reflect "reflect"
+	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -38,6 +38,14 @@ func NewCopy() *copy {
 	return &copy{}
 }
 
+func (c *copy) ListCITransactionsRequestSlice(from []*middleware.BODetailReconciliation, to *[]*core_service.BODetailReconciliation) error {
+	for _, v := range from {
+		resp := &core_service.BODetailReconciliation{}
+		c.ListCITransactionsRequest(v, resp)
+		*to = append(*to, resp)
+	}
+	return nil
+}
 func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation, to *core_service.BODetailReconciliation) error {
 	if !isNil(from.TransTime) {
 		to.TransTime = &timestamp.Timestamp{
@@ -151,16 +159,6 @@ func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation
 				}
 				return h.ItemCount
 			}(from.CountableAttribute),
-		}
-	}
-	if !isNil(from.P1) {
-		to.P1 = &core_service.BODetailReconciliation_Profile{
-			Name: func(h *middleware.BODetailReconciliation_Profile) string {
-				if h == nil {
-					return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-				}
-				return h.Name
-			}(from.P1),
 		}
 	}
 	return nil
