@@ -6,8 +6,11 @@ import "google/protobuf/timestamp.proto";
 
 // import "git.zapa.cloud/merchant-tools/helper/proto/type.proto";
 
-
+message OutnerField {
+    string name = 1;
+}
 message BODetailReconciliation {
+    OutnerField outner_filed = 1;
     // google.type.Date from_date               = 1;
     google.protobuf.Timestamp trans_time     =  2;
     string zp_system_name                   = 3;
@@ -41,6 +44,14 @@ message BODetailReconciliation {
 
 }
 
+message Fish {
+    repeated Statement1 statement1 =1;
+}
+
+message NestedFish {
+    repeated Fish fish = 1;
+}
+
 enum RefundTransLogApi {
     RTA_UNSPECIFIED = 0;
     RTA_FULL        = 1;
@@ -57,4 +68,143 @@ message Statement1 {
 }
 message RefundApi {
     Statement1 stm1=3; 
+}
+
+// test real area
+
+// `DataTransLog` represents data will be reported as table on client in all trasactions
+message TransLog{
+    // google.protobuf.Timestamp create_time = 1;
+    string app_trans_id          = 2;
+    // string trans_id              = 3;
+    // string app_name              = 4;
+    // string pmc_name              = 5;
+    // TransStatus trans_status     = 6;
+    // int64  amount                = 7;
+    // int64  user_fee_amount       = 8;
+    // int64  accumulated           = 9;
+    // int64  user_charge_amount    = 10;
+    // string templates             = 11;
+    // ZaloPayType zp_type          = 12;
+    // string used_voucher          = 13;
+    // string received_voucher      = 14;
+    // int64  discount_amount       = 15;
+    // string trans_code            = 16;
+    // TransChargeStatus trans_charge_status = 17;
+    // string app_user              = 18;
+    // string merchant_id           = 19;
+    // enum OptionalRefundStatus{ // hieuhtk: nên bỏ ORS_, trừ ORS_UNSPECIFIED
+    //     ORS_UNSPECIFIED = 0;
+    //     ORS_COMPLETE    = 1;
+    //     ORS_CAN_REFUND  = 2;
+    // }
+    // OptionalRefundStatus refund_status = 20;
+    // google.protobuf.Timestamp create_refund_time = 21;
+    // int64  total_refund_amount = 22;
+    // string description = 23;
+    // message UserInfo{
+    //     string email = 1;
+    //     string phone = 2;
+    //     string address = 3;
+    // }
+    // UserInfo user_info = 24;
+    // Department department = 25;
+    // string sp_name = 26;
+    // string merchant_name = 27;
+    // string sale_account = 28;
+    // string first6_card_no = 29;
+    // string last4_card_no = 30;
+    // string card_holder_name = 31;
+    // string tpe_bank_code = 32;
+    // string bank_info = 33;
+    // string error_code = 34;
+    // string bank_error_code = 35;
+    // string column_info = 36;
+    // Promotion promotion_info = 37;
+    // string campaign_code = 38;
+    // int64 merchant_sponsorship_amount = 39;
+    // string authorization_code = 40;
+    // int64 group_sale_amount = 41;
+    // int64 group_sale_discount = 42;
+    // message Promotion{
+    //     string device = 1;                   
+	//     string white_list_campaign = 2;
+	//     string init_zalo_pay_date = 3;
+	//     string card_type = 4;
+    //     string receiver_promotion = 5;
+    //     string card_number = 6;
+    //     string mapping_date = 7;
+    //     int32 number_of_payments = 8;
+    //     int32 number_of_time_mapping = 9;
+    //     int32 number_of_time_mapping_of_user = 10;
+    //     string nearest_trans_id = 11;
+    // }
+    // string app_id = 43;
+    // int64 cash_back_amount = 44;
+    // string aes_zp_token = 45;
+    // string trace_no = 46;
+    // string bill_customer_code = 47;
+    // string bill_customer_name = 48;
+    // google.protobuf.Timestamp retry_time = 49;
+    // int64 delivery_amount = 50;
+    // int64 service_charge_amount = 51;
+    // string merchant_campaign_code = 52;
+    // string mc_campaign_id = 53;
+    // string mc_sub_merchant_id          = 54;
+    // string mc_sub_merchant_name        = 55;
+    // string mc_store_id                 = 56;
+    // string mc_store_name               = 57;
+    // PaymentMethod payment_method       = 58;
+}
+message ListTransLogResponse{
+    repeated TransLog data      = 2;
+}
+// `ZaloPayType` is type transaction from app or gateway
+enum ZaloPayType{
+    //Không xác định
+    ZP_TYPE_UNSPECIFIED = 0;
+    //Ứng dụng zaloPay
+    ZP_TYPE_APP         = 1;
+    //Cổng ZaloPay
+    ZP_TYPE_GATEWAY     = 2;
+    //Tất cả
+    ZP_TYPE_ALL         = 3;
+}
+// `TransStatus` is status of a transaction
+enum TransStatus{
+    TS_UNSPECIFIED      = 0;
+    TS_FAIL             = 1;
+    TS_SUCCESSFUL       = 2;
+    TS_ALL              = 3;
+    TS_NEW              = 4;
+    TS_UNFINISHED       = 5;
+}
+//hình thức thanh toán
+enum PaymentMethod {
+    PM_UNSPECIFIED = 0;
+    PM_QR_PAY = 1;
+    PM_DIRECT = 2;
+    PM_QUICKPAY = 3;
+    PM_AUTODEBIT = 4;
+    PM_UNKNOWN = 5;
+}
+message Department{
+    message Object{
+       // @inject_tag: es:"id"
+       string id    = 1; //add
+       string name  = 2; //add
+    }
+    // @inject_tag: es:"branch"
+    Object branch   = 1; //add
+    // @inject_tag: es:"store"
+    Object store    = 2; //add
+    // @inject_tag: es:"cashier"
+    Object cashier  = 3; //add
+}
+// `TransChargeStatus` is status from a charging transaction
+enum TransChargeStatus{ // hieuhtk: nên bỏ TCS_, trừ TCS_UNSPECIFIED
+    TCS_UNSPECIFIED = 0;
+    TCS_PAID    = 1;
+    TCS_UNPAID  = 2;
+    TCS_PENDING = 3;
 }

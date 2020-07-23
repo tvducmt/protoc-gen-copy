@@ -7,6 +7,7 @@ import (
 	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	pb "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	"github.com/gogo/protobuf/protoc-gen-gogo/generator"
+	"github.com/golang/glog"
 )
 
 const (
@@ -93,10 +94,12 @@ func unexport(s string) string { return strings.ToLower(s[:1]) + s[1:] }
 
 // ObjQueue ...
 type ObjQueue struct {
-	Name   string
-	Type   string
-	Val    string
-	IsEnum bool
+	Name       string
+	Type       string
+	Val        string
+	IsEnum     bool
+	IsRepeated bool
+	IsObject   bool
 }
 
 func getTypeOfFied(field *descriptor.FieldDescriptorProto) string {
@@ -139,13 +142,17 @@ func (c *copy) getNestedType(input string) (string, bool) {
 func (c *copy) covertFieldsToMap(msg *descriptor.DescriptorProto, path string) []interface{} {
 	args := []interface{}{}
 	for _, v := range msg.Field {
+		isRepeated := false
 		if v.IsMessage() {
+			if v.IsRepeated() {
+				isRepeated = true
+			}
 			mpMsg := make(map[ObjQueue][]interface{})
 			msg1 := c.ObjectNamed(v.GetTypeName()).(*generator.Descriptor).DescriptorProto
 			path = path + "." + strings.Title(v.GetJsonName())
 			x := c.covertFieldsToMap(msg1, path)
 			typeNested, _ := c.getNestedType(TrimFirstRune(v.GetTypeName()))
-			mpMsg[ObjQueue{Name: strings.Title(v.GetJsonName()), Type: typeNested, Val: path}] = x
+			mpMsg[ObjQueue{Name: strings.Title(v.GetJsonName()), Type: typeNested, Val: path, IsRepeated: isRepeated, IsObject: true}] = x
 			args = append(args, mpMsg)
 			last := path[strings.LastIndex(path, ".")+1:]
 			path = path[:(len(path) - len(last) - 1)]
@@ -153,14 +160,17 @@ func (c *copy) covertFieldsToMap(msg *descriptor.DescriptorProto, path string) [
 			typeNested, _ := c.getNestedType(TrimFirstRune(v.GetTypeName()))
 			args = append(args, ObjQueue{Name: strings.Title(v.GetJsonName()), Type: typeNested, Val: path + "." + strings.Title(v.GetJsonName()), IsEnum: true})
 		} else {
+			if v.IsRepeated() {
+				isRepeated = true
+			}
 			primitiveType := getTypeOfFied(v)
-			args = append(args, ObjQueue{Name: strings.Title(v.GetJsonName()), Type: primitiveType, Val: path + "." + strings.Title(v.GetJsonName())})
+			args = append(args, ObjQueue{Name: strings.Title(v.GetJsonName()), Type: primitiveType, Val: path + "." + strings.Title(v.GetJsonName()), IsRepeated: isRepeated})
 		}
 	}
 	return args
 }
 
-func (c *copy) generateCpFunc(v interface{}, path string, checkInner bool, checkOuter bool, fromArgString []interface{}) {
+func (c *copy) generateCpFunc(v interface{}, path string, checkInner bool, checkOuter bool, fromArgString []interface{}, parentRepeated bool) {
 
 	if k, ok := v.(ObjQueue); ok {
 		if k.IsEnum {
@@ -180,17 +190,57 @@ func (c *copy) generateCpFunc(v interface{}, path string, checkInner bool, check
 					c.P(`}`)
 				}
 			}
-		} else {
+		} else if k.IsRepeated {
+
 			result := ExistInFromArrString(k.Val, fromArgString)
 			if result.Name != "" {
-				if checkInner {
-					c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
-					c.P(`	if h == nil {`)
-					c.P(`		return reflect.Zero(reflect.TypeOf(reflect.`, strings.Title(k.Type), `)).Interface().(`, k.Type, `)`)
-					c.P(`	}`)
-					c.P(`	return h.`, k.Name)
-					c.P(`}(from.`, TrimFirstRune(result.Val), `),`)
 
+				if checkInner {
+					if k.IsObject {
+						c.P(result.Name+`tmp := make([]*`, k.Type, `, len(from.`, TrimFirstRune(result.Val), `))`)
+						c.P(`for i, v := range `, result.Type, ` {`)
+						c.P(result.Name, `tmp[i] = &`, k.Type, `{`)
+						c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
+						c.P(`	if h == nil {`)
+						c.P(`		return reflect.Zero(reflect.TypeOf(reflect.`, strings.Title(k.Type), `)).Interface().(`, k.Type, `)`)
+						c.P(`	}`)
+						c.P(`	return h.`, k.Name)
+						c.P(`}(v)`)
+					} else {
+						c.P(k.Name, `: func(h *`, result.Type, `) []`, k.Type, ` {`) //  `: from`, k.Val, `,`
+						c.P(`	if h == nil {`)
+						c.P(`		return nil`)
+						c.P(`	}`)
+						c.P(`	return h.`, k.Name)
+						c.P(`}(v),`)
+					}
+
+				} else {
+					c.P(`if !isNil(from`, k.Val, `){`)
+					c.P(path+k.Name, `= from`, k.Val)
+					c.P(`}`)
+				}
+			}
+		} else {
+			result := ExistInFromArrString(k.Val, fromArgString)
+			glog.Infoln("Into here 1", k)
+			if result.Name != "" {
+				if checkInner {
+					if parentRepeated {
+						c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
+						c.P(`	if h == nil {`)
+						c.P(`		return reflect.Zero(reflect.TypeOf(reflect.`, strings.Title(k.Type), `)).Interface().(`, k.Type, `)`)
+						c.P(`	}`)
+						c.P(`	return h.`, k.Name)
+						c.P(`}(from.` + TrimFirstRune(result.Val) + `[i]),`)
+					} else {
+						c.P(k.Name, `: func(h *`, result.Type, `) `, k.Type, ` {`) //  `: from`, k.Val, `,`
+						c.P(`	if h == nil {`)
+						c.P(`		return reflect.Zero(reflect.TypeOf(reflect.`, strings.Title(k.Type), `)).Interface().(`, k.Type, `)`)
+						c.P(`	}`)
+						c.P(`	return h.`, k.Name)
+						c.P(`}(from.`, TrimFirstRune(result.Val), `),`)
+					}
 				} else {
 					c.P(`if !isNil(from`, k.Val, `){`)
 					c.P(path+k.Name, `= from`, k.Val)
@@ -202,22 +252,48 @@ func (c *copy) generateCpFunc(v interface{}, path string, checkInner bool, check
 	} else if mp, oki := v.(map[ObjQueue][]interface{}); oki {
 		for key, mp1Val := range mp {
 			if checkInner {
-				path = key.Name
-				c.P(path, `: &`, key.Type, `{`)
+				if key.IsRepeated {
+					glog.Infoln("Into here 0", key)
+					c.P(`if !isNil(from`, key.Val, `){`)
+					c.P(`tmp := make([]*`, key.Type, `, len(from`, key.Val, `))`)
+					c.P(`for i, v := range from`, key.Val, ` {`)
+					c.P(`glog.Infoln("v",v)`)
+					c.P(`tmp[i] = &`, key.Type, `{`)
+				} else {
+					path = key.Name
+					c.P(path, `: &`, key.Type, `{`)
+				}
 			} else {
 				path = path + key.Name
-				c.P(`if !isNil(from`, key.Val, `){`)
-				c.P(path, `= &`, (key.Type), `{`)
+				if key.IsRepeated {
+					c.P(`if !isNil(from`, key.Val, `){`)
+					c.P(`tmp := make([]*`, key.Type, `, len(from`, key.Val, `))`)
+					c.P(`for i, v := range from`, key.Val, ` {`)
+					c.P(`glog.Infoln("v",v)`)
+					c.P(`tmp[i] = &`, key.Type, `{`)
+				} else {
+					c.P(`if !isNil(from`, key.Val, `){`)
+					c.P(path, `= &`, (key.Type), `{`)
+				}
 
 			}
 
 			checkInner = true
+			var parentRepeated bool
+			if key.IsRepeated {
+				parentRepeated = true
+			}
 			for _, h := range mp1Val {
-				c.generateCpFunc(h, path+".", checkInner, false, fromArgString)
+
+				c.generateCpFunc(h, path+".", checkInner, false, fromArgString, parentRepeated)
 			}
 			if checkOuter {
 				c.P(`}`)
 				c.P(`}`)
+				if key.IsRepeated {
+					c.P(`to`, key.Val, `= tmp`)
+					c.P(`}`)
+				}
 			} else {
 				c.P(`},`)
 			}
@@ -250,7 +326,7 @@ func (c *copy) generateClientMethod(servName, fullServName, serviceDescVar strin
 
 	c.P(`for _, v := range from {`)
 	c.P(`resp := &`, outType, `{}`)
-	c.P(`c.ListCITransactionsRequest(v, resp)`)
+	c.P(`c.`, method.GetName(), `(v, resp)`)
 	c.P(`*to = append(*to, resp)`)
 	c.P(`}`)
 
@@ -263,10 +339,12 @@ func (c *copy) generateClientMethod(servName, fullServName, serviceDescVar strin
 	msgOutput := c.ObjectNamed(method.GetOutputType()).(*generator.Descriptor).DescriptorProto
 	fromMap := c.covertFieldsToMap(msgInput, "")
 	toMap := c.covertFieldsToMap(msgOutput, "")
-
+	glog.Infoln("fromMap", fromMap)
+	glog.Infoln("toMap", toMap)
 	fromArrString := c.covertMapToArrString(fromMap)
+	glog.Infoln("fromArrString", fromArrString)
 	for _, v := range toMap {
-		c.generateCpFunc(v, "to.", false, true, fromArrString)
+		c.generateCpFunc(v, "to.", false, true, fromArrString, false)
 	}
 	c.P("return  nil")
 	c.P("}")

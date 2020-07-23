@@ -5,7 +5,11 @@ package core_service;
 // import "git.zapa.cloud/merchant-tools/helper/proto/type.proto";
 import "google/protobuf/timestamp.proto";
 
+message OutnerField {
+    string name = 1;
+}
 message BODetailReconciliation {
+    OutnerField outner_filed = 1;
     // google.type.Date from_date               = 1;
     google.protobuf.Timestamp trans_time     =  2;
     string zp_system_name                   = 3;
@@ -55,4 +59,238 @@ message Statement1 {
 }
 message RefundApi {
     Statement1 stm1=3; 
+}
+
+message Fish {
+    repeated Statement1 statement1 =1;
+}
+
+message NestedFish {
+    repeated Fish fish = 1;
+}
+
+
+
+// test real erea
+
+
+
+message ListTransactionResponse {
+    repeated Transaction data = 1;
+}
+// `ZaloPayType` is type transaction from app or gateway
+enum ZaloPayType{
+    //Không xác định
+    ZP_TYPE_UNSPECIFIED = 0;
+    //Ứng dụng zaloPay
+    ZP_TYPE_APP         = 1;
+    //Cổng ZaloPay
+    ZP_TYPE_GATEWAY     = 2;
+    //Tất cả
+    ZP_TYPE_ALL         = 3;
+}
+// `TransStatus` is status of a transaction
+enum TransStatus{
+    TS_UNSPECIFIED      = 0;
+    TS_FAIL             = 1;
+    TS_SUCCESSFUL       = 2;
+    TS_ALL              = 3;
+    TS_NEW              = 4;
+    TS_UNFINISHED       = 5;
+}
+//hình thức thanh toán
+enum PaymentMethod {
+    PM_UNSPECIFIED = 0;
+    PM_QR_PAY = 1;
+    PM_DIRECT = 2;
+    PM_QUICKPAY = 3;
+    PM_AUTODEBIT = 4;
+    PM_UNKNOWN = 5;
+}
+message Department{
+    message Object{
+       // @inject_tag: es:"id"
+       string id    = 1; //add
+       string name  = 2; //add
+    }
+    // @inject_tag: es:"branch"
+    Object branch   = 1; //add
+    // @inject_tag: es:"store"
+    Object store    = 2; //add
+    // @inject_tag: es:"cashier"
+    Object cashier  = 3; //add
+}
+
+// `DataTransLog` represents data will be reported as table on client in all trasactions.
+message Transaction{
+    // // @inject_tag: es:"reqDate"
+    // google.protobuf.Timestamp create_time = 1;
+    // @inject_tag: es:"appTransId" query:"*%*"
+    string app_trans_id          = 2;
+    // // @inject_tag: es:"transId" query:"*%*"
+    // string trans_id              = 3;
+    // // @inject_tag: es:"appName"
+    // string app_name              = 4;
+    // // @inject_tag: es:"pmcName"
+    // string pmc_name              = 5; //add
+    // // @inject_tag: es:"transStatus"
+    // TransStatus trans_status     = 6;
+    // // @inject_tag: es:"amount"
+    // int64  amount                = 7;
+    // // @inject_tag: es:"userFeeAmount"
+    // int64  user_fee_amount       = 8; //add
+    // // @inject_tag: es:"accumulated"
+    // int64  accumulated           = 9; //add
+    // // @inject_tag: es:"userChargeAmount"
+    // int64  user_charge_amount    = 10;
+    // // @inject_tag: es:"templates"
+    // string templates             = 11; //add
+    // // @inject_tag: es:"zpSystem"
+    // ZaloPayType zp_type          = 12;
+    // // @inject_tag: es:"usedVoucher"
+    // string used_voucher          = 13; //add
+    // // @inject_tag: es:"receivedVoucher"
+    // string received_voucher      = 14; //add
+    // // @inject_tag: es:"disCountAmount"
+    // int64  discount_amount       = 15; //add
+    // // @inject_tag: es:"transErrCode"
+    // string trans_code            = 16; //add
+    // enum TransChargeStatus{
+    //     TCS_UNSPECIFIED = 0;
+    //     TCS_PAID    = 1;
+    //     TCS_UNPAID  = 2;
+    //     TCS_PENDING = 3;
+    // }
+    // // @inject_tag: es:"transChargeStatus"
+    // TransChargeStatus trans_charge_status = 17;
+    // // @inject_tag: es:"appUser" query:"match"
+    // string app_user              = 18;
+    // // @inject_tag: es:"merchantId"
+    // string merchant_id           = 19;
+    // enum OptionalRefundStatus{
+    //     ORS_UNSPECIFIED = 0;
+    //     ORS_COMPLETE    = 1;
+    //     ORS_CAN_REFUND  = 2;
+    // }
+    // // @inject_tag: es:"refundStatus"
+    // OptionalRefundStatus refund_status = 20; //add
+    // // @inject_tag: es:"merchantName" query:"match"
+    // string merchant_name            = 21;
+    // // @inject_tag: es:"saleAccount"
+    // string sale_account          = 22;
+    // // @inject_tag: es:"user"
+    // string user                  = 23; //add
+    // // @inject_tag: es:"createRefundTime"
+    // google.protobuf.Timestamp create_refund_time = 24; //add
+    // // @inject_tag: es:"refundAmount"
+    // int64 total_refund_amount = 25;
+    // // @inject_tag: es:"description" query:"*%*"
+    // string description = 26;
+    // message UserInfo{
+    //     // @inject_tag: es:"email" query:"*%*"
+    //     string email = 1; //add query:"*%*"
+    //     // @inject_tag: es:"phoneNumber" query:"*%*"
+    //     string phone = 2; //add
+    //     // @inject_tag: es:"address"
+    //     string address = 3; //add
+    // }
+    // // @inject_tag: es:"userInfo"
+    // UserInfo user_info = 27; //add
+    // // @inject_tag: es:"department"
+    // Department department = 28; //add
+    // // @inject_tag: es:"spName" query:"match"
+    // string sp_name = 29;
+    // // @inject_tag: es:"first6CardNo"
+    // string first6_card_no = 30;
+    // // @inject_tag: es:"last4CardNo"
+    // string last4_card_no = 31;
+    // // @inject_tag: es:"cardHolderName"
+    // string card_holder_name = 32;
+    // // @inject_tag: es:"tpeBankCode"
+    // string tpe_bank_code = 33;
+    // // @inject_tag: es:"bankInfo"
+    // string bank_info = 34; //add
+    // // @inject_tag: es:"errorCode"
+    // string error_code = 35; //add
+    // // @inject_tag: es:"bankErrorCode"
+    // string bank_error_code = 36; //add
+    // // @inject_tag: es:"spId"
+    // string sp_id = 37;
+    // // @inject_tag: es:"appID"
+    // string app_id = 38;
+    // // @inject_tag: es:"saleID"
+    // string sale_id = 39;
+    // // @inject_tag: es:"pmcID"
+    // string pmc_id = 40;
+    // // @inject_tag: es:"companyInfo"
+    // CompanyInfo company_info = 41;
+    // message CompanyInfo{
+    //     // @inject_tag: es:"name"
+    //     string name = 1;
+    //     // @inject_tag: es:"shortName"
+    //     string short_name = 2;
+    // }
+    // string column_info = 42;
+    // Promotion promotion_info = 43;
+    // // @inject_tag: es:"campaignCode" query:"match"
+    // string campaign_code = 44;
+    // // @inject_tag: es:"campaignId"
+    // string campaign_id = 45;
+    // // @inject_tag: es:"merchantSponsorshipAmount"
+    // int64 merchant_sponsorship_amount = 46;
+    // // @inject_tag: es:"authorizationCode" query:"match"
+    // string authorization_code = 47;
+    // // @inject_tag: es:"groupSaleAmount"
+    // int64 group_sale_amount = 48;
+    // // @inject_tag: es:"groupSaleDiscount"
+    // int64 group_sale_discount = 49;
+    // message Promotion{
+    //     string device = 1;
+	//     string white_list_campaign = 2;
+	//     string init_zalo_pay_date = 3;
+	//     string card_type = 4;
+    //     string receiver_promotion = 5;
+    //     string card_number = 6;
+    //     string mapping_date = 7;
+    //     int32 number_of_payments = 8;
+    //     int32 number_of_time_mapping = 9;
+    //     int32 number_of_time_mapping_of_user = 10;
+    //     string nearest_trans_id = 11;
+    // }
+    // // @inject_tag: es:"itemCount"
+    // int32 item_count = 50;
+    // // @inject_tag: es:"cashBackAmount"
+    // int64 cash_back_amount = 51;
+    // // @inject_tag: es:"aesZpToken"
+    // string aes_zp_token = 52;
+    // // @inject_tag: es:"rsaZpToken"
+    // string rsa_zp_token = 53;
+    // // @inject_tag: es:"traceNo" query:"*%*"
+    // string trace_no = 54;
+    // // @inject_tag: es:"retryTime"
+    // google.protobuf.Timestamp retry_time = 55;
+    // // @inject_tag: es:"billCustomerCode" query:"*%*"
+    // string bill_customer_code = 56;
+    // // @inject_tag: es:"billCustomerName" query:"*%*"
+    // string bill_customer_name = 57;
+    // // @inject_tag: es:"deliveryAmount"
+    // int64 delivery_amount = 58;
+    // // @inject_tag: es:"serviceChargeAmount"
+    // int64 service_charge_amount = 59;
+    // // @inject_tag: es:"merchantCampaignCode" query:"*%*"
+    // string merchant_campaign_code = 60;
+    // // @inject_tag: es:"mcCampaignId" query:"*%*"
+    // string mc_campaign_id = 61;
+    // // @inject_tag: es:"mc_sub_merchant_id"
+    // string mc_sub_merchant_id          = 62 ;
+    // // @inject_tag: es:"mc_sub_merchant_name" query:"*%*"
+    // string mc_sub_merchant_name        = 63 ;
+    // // @inject_tag: es:"mc_store_id"
+    // string mc_store_id                 = 64 ;
+    // // @inject_tag: es:"mc_store_name" query:"*%*"
+    // string mc_store_name               = 65 ;
+    // // @inject_tag: es:"paymentMethod"
+    // PaymentMethod payment_method = 66;
+    // // @inject_tag: es:"userId"
+    // string user_id = 67;
 }

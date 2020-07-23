@@ -5,9 +5,16 @@ package copy;
 // import "git.zapa.cloud/merchant-tools/helper/proto/type.proto";
 import "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service/core.proto";
 import "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware/middleware.proto";
-import "google.golang.org/grpc/metadata";
-
-
+// import "google.golang.org/grpc/metadata";
+import "git.zapa.cloud/merchant-tools/protobuf/middleware/report/report.proto";
+import "git.zapa.cloud/merchant-tools/protobuf/report-service/report-service.proto";
+import "google/protobuf/empty.proto";
+// import "git.zapa.cloud/merchant-tools/protobuf/middleware/common/common.proto";
 service Copy {
-    rpc ListCITransactionsRequest(middleware.BODetailReconciliation) returns (core_service.BODetailReconciliation) {}
+    // rpc ListCITransactionsRequest(middleware.BODetailReconciliation) returns (core_service.BODetailReconciliation) {}
+    // rpc ListCITransactionResponse(core_service.ListTransactionResponse) returns (middleware.ListTransLogResponse) {}
+
+    // rpc ListCITransactionResponse (report.service.ListTransactionResponse) returns (api.report.ListTransLogResponse){};
+    // rpc CopyFish(middleware.Fish) returns (core_service.Fish) {}
+    rpc CopyNestedFish(middleware.NestedFish) returns (core_service.NestedFish) {}
 }

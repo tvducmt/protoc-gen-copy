@@ -7,12 +7,13 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "github.com/gogo/protobuf/proto"
-	context "context"
 	core_service "github.com/tvducmt/protoc-gen-copy/protobuf-file/core-service"
 	middleware "github.com/tvducmt/protoc-gen-copy/protobuf-file/middleware"
-	_ "google.golang.org/grpc"
+	_ "git.zapa.cloud/merchant-tools/protobuf/middleware/report"
+	_ "git.zapa.cloud/merchant-tools/protobuf/report-service"
+	_ "github.com/golang/protobuf/ptypes/empty"
+	context "context"
 	reflect "reflect"
-	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -38,128 +39,73 @@ func NewCopy() *copy {
 	return &copy{}
 }
 
-func (c *copy) ListCITransactionsRequestSlice(from []*middleware.BODetailReconciliation, to *[]*core_service.BODetailReconciliation) error {
+func (c *copy) CopyNestedFishSlice(from []*middleware.NestedFish, to *[]*core_service.NestedFish) error {
 	for _, v := range from {
-		resp := &core_service.BODetailReconciliation{}
-		c.ListCITransactionsRequest(v, resp)
+		resp := &core_service.NestedFish{}
+		c.CopyNestedFish(v, resp)
 		*to = append(*to, resp)
 	}
 	return nil
 }
-func (c *copy) ListCITransactionsRequest(from *middleware.BODetailReconciliation, to *core_service.BODetailReconciliation) error {
-	if !isNil(from.TransTime) {
-		to.TransTime = &timestamp.Timestamp{
-			Seconds: func(h *timestamp.Timestamp) int64 {
-				if h == nil {
-					return reflect.Zero(reflect.TypeOf(reflect.Int64)).Interface().(int64)
-				}
-				return h.Seconds
-			}(from.TransTime),
-			Nanos: func(h *timestamp.Timestamp) int32 {
-				if h == nil {
-					return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
-				}
-				return h.Nanos
-			}(from.TransTime),
-		}
-	}
-	if !isNil(from.ZpSystemName) {
-		to.ZpSystemName = from.ZpSystemName
-	}
-	if !isNil(from.VoucherCode) {
-		to.VoucherCode = core_service.BODetailReconciliation_VoucherCode(from.VoucherCode)
-	}
-	if !isNil(from.TimeAttribute) {
-		to.TimeAttribute = &core_service.BODetailReconciliation_TimeAttribute{
-			RetryTime: &timestamp.Timestamp{
-				Seconds: func(h *timestamp.Timestamp) int64 {
-					if h == nil {
-						return reflect.Zero(reflect.TypeOf(reflect.Int64)).Interface().(int64)
-					}
-					return h.Seconds
-				}(from.TimeAttribute.RetryTime),
-				Nanos: func(h *timestamp.Timestamp) int32 {
-					if h == nil {
-						return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
-					}
-					return h.Nanos
-				}(from.TimeAttribute.RetryTime),
-			},
-		}
-	}
-	if !isNil(from.CountableAttribute) {
-		to.CountableAttribute = &core_service.BODetailReconciliation_CountableAttribute{
-			RefundApi: &core_service.RefundApi{
-				Stm1: &core_service.Statement1{
+func (c *copy) CopyNestedFish(from *middleware.NestedFish, to *core_service.NestedFish) error {
+	if !isNil(from.Fish) {
+		tmp := make([]*core_service.Fish, len(from.Fish))
+		for i, v := range from.Fish {
+			glog.Infoln("v", v)
+			tmp[i] = &core_service.Fish{
+				Statement1: &core_service.Statement1{
 					H1: func(h *middleware.Statement1) string {
 						if h == nil {
 							return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
 						}
 						return h.H1
-					}(from.CountableAttribute.RefundApi.Stm1),
+					}(from.Fish.Statement1[i]),
 					H2: func(h *middleware.Statement1) string {
 						if h == nil {
 							return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
 						}
 						return h.H2
-					}(from.CountableAttribute.RefundApi.Stm1),
+					}(from.Fish.Statement1[i]),
 				},
-			},
-			Data: &core_service.BODetailReconciliation_CountableAttribute_Transaction{
-				K1: func(h *middleware.BODetailReconciliation_CountableAttribute_Transaction) string {
-					if h == nil {
-						return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-					}
-					return h.K1
-				}(from.CountableAttribute.Data),
-				K2: func(h *middleware.BODetailReconciliation_CountableAttribute_Transaction) string {
-					if h == nil {
-						return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-					}
-					return h.K2
-				}(from.CountableAttribute.Data),
-				Stm: &core_service.Statement{
-					H1: func(h *middleware.Statement) string {
-						if h == nil {
-							return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-						}
-						return h.H1
-					}(from.CountableAttribute.Data.Stm),
-					H2: func(h *middleware.Statement) string {
-						if h == nil {
-							return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-						}
-						return h.H2
-					}(from.CountableAttribute.Data.Stm),
-				},
-			},
-			TpeBankCode: func(h *middleware.BODetailReconciliation_CountableAttribute) string {
-				if h == nil {
-					return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-				}
-				return h.TpeBankCode
-			}(from.CountableAttribute),
-			Stm: &core_service.Statement{
-				H1: func(h *middleware.Statement) string {
-					if h == nil {
-						return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-					}
-					return h.H1
-				}(from.CountableAttribute.Stm),
-				H2: func(h *middleware.Statement) string {
-					if h == nil {
-						return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
-					}
-					return h.H2
-				}(from.CountableAttribute.Stm),
-			},
-			ItemCount: func(h *middleware.BODetailReconciliation_CountableAttribute) int32 {
-				if h == nil {
-					return reflect.Zero(reflect.TypeOf(reflect.Int32)).Interface().(int32)
-				}
-				return h.ItemCount
-			}(from.CountableAttribute),
+			}
 		}
+		to.Fish = tmp
 	}
 	return nil
+}
+
+func (c *copy) CopyNestedFish(from *middleware.NestedFish,to *core_service.NestedFish) error{
+	if !isNil(from.Fish){
+		tmp := make([]*core_service.Fish, len(from.Fish))
+		for i, v := range from.Fish {
+		glog.Infoln("v",v)
+		tmp[i] = &core_service.Fish{
+			Statement1: v.Statement1,
+		}
+			// if !isNil(from.Fish.Statement1){
+				
+			// 	tmp := make([]*core_service.Statement1, len(from.Fish.Statement1))
+			// 	for i, v := range from.Fish.Statement1 {
+			// 		glog.Infoln("v",v)
+			// 		tmp[i] = &core_service.Statement1{
+			// 			H1: func(h *middleware.Statement1) string {
+			// 					if h == nil {
+			// 							return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+			// 					}
+			// 					return h.H1
+			// 			}(from.Fish.Statement1[i]),
+			// 			H2: func(h *middleware.Statement1) string {
+			// 					if h == nil {
+			// 							return reflect.Zero(reflect.TypeOf(reflect.String)).Interface().(string)
+			// 					}
+			// 					return h.H2
+			// 			}(from.Fish.Statement1[i]),
+			// 		},
+			// 	}
+			// }
+		}
+	}
+	to.Fish= tmp
+	}
+	return  nil
 }
